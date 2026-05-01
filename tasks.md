@@ -19,7 +19,7 @@
 - [x] Roadmap Enhancement: Export data to CSV format (TXT and XLSX deferred)
 - [ ] Roadmap Enhancement: White-labeling (Branding, logos, custom themes, fonts)
 - [ ] Roadmap Enhancement: Advanced styled "S-curve" snaking
-- [ ] Roadmap Enhancement: Week number display (user-toggled preference — show ISO week numbers as a column or label on each row)
+- [x] Roadmap Enhancement: Week number display (ISO 8601, badge on week-start day cells, both alignment modes)
 - [ ] Roadmap Enhancement: Hover on snake connector highlights entire event across all months
 
 ## Phase 2 Plan (branch: phase-2-snaking)
