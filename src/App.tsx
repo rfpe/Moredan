@@ -190,6 +190,12 @@ function App() {
                       }}
                     >
                       <span className="event-title">{event?.name}</span>
+                      {span.isEndContinuation && (
+                        <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                      )}
+                      {span.isStartContinuation && (
+                        <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                      )}
                     </div>
                   );
                 })}

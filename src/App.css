@@ -177,7 +177,8 @@
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   transition: transform 0.1s;
   border: 1px solid rgba(0,0,0,0.1);
-  overflow: hidden; /* CRITICAL for truncation */
+  position: relative;
+  overflow: visible;
 }
 
 .event-title {
@@ -192,6 +193,25 @@
   transform: translateY(-1px);
   filter: brightness(1.1);
   z-index: 20;
+}
+
+.snake-nub {
+  position: absolute;
+  width: 3px;
+  height: 8px;
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.snake-nub--end {
+  right: 3px;
+  bottom: -8px;
+}
+
+.snake-nub--start {
+  left: 3px;
+  top: -8px;
 }
 
 /* Forms & Modals */
