@@ -13,7 +13,12 @@ function App() {
     { id: '3', name: 'Urgent', color: '#ef4444' },
   ]);
 
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([
+    { id: 'e1', name: 'Project Kickoff', start: new Date(2026, 0, 15), end: new Date(2026, 0, 15), categoryId: '1' },
+    { id: 'e2', name: 'Vacation', start: new Date(2026, 5, 10), end: new Date(2026, 5, 20), categoryId: '2' },
+    { id: 'e3', name: 'Deadline', start: new Date(2026, 0, 15), end: new Date(2026, 0, 15), categoryId: '3' },
+  ]);
+
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
 
   const toggleCategory = (id: string) => {
@@ -24,6 +29,21 @@ function App() {
       newVisible.add(id);
     }
     setVisibleCategories(newVisible);
+  };
+
+  const getEventsForDay = (monthIndex: number, day: number) => {
+    return events.filter(event => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      const currentDate = new Date(currentYear, monthIndex, day);
+      
+      // Normalize dates to remove time for comparison
+      currentDate.setHours(0, 0, 0, 0);
+      eventStart.setHours(0, 0, 0, 0);
+      eventEnd.setHours(0, 0, 0, 0);
+
+      return currentDate >= eventStart && currentDate <= eventEnd && visibleCategories.has(event.categoryId);
+    });
   };
 
   return (
@@ -70,10 +90,23 @@ function App() {
               {/* Actual days */}
               {Array.from({ length: month.daysInMonth }).map((_, i) => {
                 const day = i + 1;
+                const dayEvents = getEventsForDay(month.index, day);
                 return (
                   <div key={day} className="day-cell">
                     <span className="day-number">{day}</span>
-                    {/* Events will be rendered here */}
+                    <div className="event-indicators">
+                      {dayEvents.map(event => {
+                        const category = categories.find(c => c.id === event.categoryId);
+                        return (
+                          <div 
+                            key={event.id} 
+                            className="event-dot" 
+                            style={{ backgroundColor: category?.color }}
+                            title={event.name}
+                          ></div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}

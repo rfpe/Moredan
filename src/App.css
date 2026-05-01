@@ -111,6 +111,22 @@
 
 .day-number {
   z-index: 1;
+  font-size: 0.6rem;
+}
+
+.event-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1px;
+}
+
+.event-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
 }
 
 .empty {
