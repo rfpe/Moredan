@@ -16,7 +16,7 @@
 - [x] Roadmap Enhancement: Switchable year (selector for 2026, 2027, etc.)
 - [ ] Roadmap Enhancement: User Layout Preferences (Toggles for label positioning, alignment modes)
 - [x] Roadmap Enhancement: User-selectable locale for dates
-- [ ] Roadmap Enhancement: Export data to TXT/CSV/Excel formats
+- [x] Roadmap Enhancement: Export data to CSV format (TXT and XLSX deferred)
 - [ ] Roadmap Enhancement: White-labeling (Branding, logos, custom themes, fonts)
 - [ ] Roadmap Enhancement: Advanced styled "S-curve" snaking
 - [ ] Roadmap Enhancement: Week number display (user-toggled preference — show ISO week numbers as a column or label on each row)
