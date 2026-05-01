@@ -3,6 +3,8 @@ import React from 'react';
 interface SettingsModalProps {
   locale: string;
   onLocaleChange: (locale: string) => void;
+  weekdayAlign: boolean;
+  onWeekdayAlignChange: (value: boolean) => void;
   onClose: () => void;
 }
 
@@ -21,7 +23,13 @@ const LOCALES = [
   { code: 'ar-SA', label: 'العربية' },
 ];
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ locale, onLocaleChange, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({
+  locale,
+  onLocaleChange,
+  weekdayAlign,
+  onWeekdayAlignChange,
+  onClose,
+}) => {
   const browserLocale = navigator.language;
   const browserLabel = `Browser default (${browserLocale})`;
 
@@ -29,10 +37,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ locale, onLocaleChange, o
     <div className="settings-form">
       <div className="form-group">
         <label>Calendar Language</label>
-        <select
-          value={locale}
-          onChange={e => onLocaleChange(e.target.value)}
-        >
+        <select value={locale} onChange={e => onLocaleChange(e.target.value)}>
           <option value={browserLocale}>{browserLabel}</option>
           {LOCALES.filter(l => l.code !== browserLocale).map(l => (
             <option key={l.code} value={l.code}>{l.label}</option>
@@ -40,6 +45,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ locale, onLocaleChange, o
         </select>
         <span className="settings-hint">Affects month and weekday names on the calendar.</span>
       </div>
+
+      <div className="form-group">
+        <label>Column Alignment</label>
+        <div className="settings-radio-group">
+          <label className="settings-radio-item">
+            <input
+              type="radio"
+              name="alignment"
+              checked={!weekdayAlign}
+              onChange={() => onWeekdayAlignChange(false)}
+            />
+            <span>1st of month</span>
+            <span className="settings-hint">Each row starts at day 1.</span>
+          </label>
+          <label className="settings-radio-item">
+            <input
+              type="radio"
+              name="alignment"
+              checked={weekdayAlign}
+              onChange={() => onWeekdayAlignChange(true)}
+            />
+            <span>Weekday</span>
+            <span className="settings-hint">Columns align by weekday across all months.</span>
+          </label>
+        </div>
+      </div>
+
       <div className="form-actions">
         <button type="button" className="primary-btn" onClick={onClose}>Done</button>
       </div>
