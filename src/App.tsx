@@ -7,7 +7,11 @@ import EventForm from './components/EventForm';
 import CategoryForm from './components/CategoryForm';
 
 function App() {
-  const currentYear = 2026;
+  const [currentYear, setCurrentYear] = useState(() => {
+    const saved = localStorage.getItem('moredan_current_year');
+    return saved ? parseInt(saved, 10) : 2026;
+  });
+
   const yearData = useMemo(() => generateYearData(currentYear), [currentYear]);
   
   const [categories, setCategories] = useState<Category[]>(() => {
@@ -43,6 +47,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('moredan_events', JSON.stringify(events));
   }, [events]);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_current_year', currentYear.toString());
+  }, [currentYear]);
 
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
@@ -103,7 +111,12 @@ function App() {
     <div className="app-container">
       <header className="header">
         <div className="title-section">
-          <h1>Moredan {currentYear}</h1>
+          <h1>Moredan</h1>
+          <div className="year-selector">
+            <button onClick={() => setCurrentYear(prev => prev - 1)}>&lt;</button>
+            <span>{currentYear}</span>
+            <button onClick={() => setCurrentYear(prev => prev + 1)}>&gt;</button>
+          </div>
         </div>
         
         <div className="category-filters">
@@ -167,7 +180,6 @@ function App() {
                         gridColumnEnd: span.endColumn,
                         top: `${20 + span.rowOffset * 22}px`,
                         backgroundColor: category?.color,
-                        // Ensure bar spans correctly in the grid
                         position: 'relative',
                         gridRow: 1
                       }}
