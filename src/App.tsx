@@ -126,47 +126,26 @@ function App() {
         </div>
       </header>
       
-      <main className="calendar-grid">
+      <main className="calendar-container">
         {yearData.map((month) => (
-          <div key={month.name} className="month-container">
-            <div className="month-title">{month.name}</div>
-            <div className="days-grid">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                <div key={d} className="day-cell day-header">{d}</div>
-              ))}
-              
-              {/* Empty cells for padding */}
-              {Array.from({ length: month.firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} className="day-cell empty"></div>
-              ))}
-              
-              {/* Actual days */}
-              {Array.from({ length: month.daysInMonth }).map((_, i) => {
-                const day = i + 1;
-                const dayEvents = getEventsForDay(month.index, day);
-                return (
-                  <div 
-                    key={day} 
-                    className={`day-cell ${dayEvents.length > 0 ? 'has-events' : ''}`}
-                    onClick={() => setSelectedDay({ month: month.index, day })}
-                  >
-                    <span className="day-number">{day}</span>
-                    <div className="event-indicators">
-                      {dayEvents.map(event => {
-                        const category = categories.find(c => c.id === event.categoryId);
-                        return (
-                          <div 
-                            key={event.id} 
-                            className="event-dot" 
-                            style={{ backgroundColor: category?.color }}
-                            title={event.name}
-                          ></div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+          <div key={month.name} className="month-row">
+            <div className="month-label">{month.name}</div>
+            
+            {/* Background Grid */}
+            {month.days.map((day) => (
+              <div 
+                key={day.dayNumber} 
+                className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
+                onClick={() => setSelectedDay({ month: month.index, day: day.dayNumber })}
+              >
+                <span className="day-number">{day.dayNumber}</span>
+                <span className="day-weekday">{day.weekday}</span>
+              </div>
+            ))}
+
+            {/* Event Spans (To be implemented in Phase 2 & 3) */}
+            <div className="event-layer">
+              {/* Event bars will be rendered here */}
             </div>
           </div>
         ))}
@@ -223,7 +202,9 @@ function App() {
             className="primary-btn full-width" 
             style={{ marginTop: '1rem' }}
             onClick={() => {
+              const day = selectedDay;
               setSelectedDay(null);
+              // Future improvement: pre-fill date in Add Event modal
               setIsEventModalOpen(true);
             }}
           >
