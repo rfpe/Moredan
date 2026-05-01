@@ -2,18 +2,18 @@
 
 ## Open Tasks
 - [ ] Create UI/UX design mockup (concept)
-- [ ] Implement actual calendar day calculations (2026)
-- [ ] Implement category management
-- [ ] Implement event management
-- [ ] Refine "no-scroll" CSS for various resolutions
+- [ ] Implement category management (CRUD)
+- [ ] Implement event management (CRUD)
+- [ ] Implement event rendering in day cells
+- [ ] Implement event filtering by category visibility
 
 ## Next Tasks
-- [ ] Define data models for Events and Categories
-- [ ] Create calendar utility functions
-- [ ] Implement real day rendering in App.tsx
+- [ ] Implement event rendering in day cells
+- [ ] Create "Add Event" modal/form
+- [ ] Create "Manage Categories" modal/form
 
 ## Pending Decisions
-- [ ] Should I use a library for date manipulation (e.g., date-fns) or vanilla JS? (Preference: Vanilla JS to keep it lean)
+- [ ] Modal strategy (Reach UI, Radix, or simple custom modal?) -> Custom for maximum control and zero dependencies.
 
 ## Done Tasks
 - [x] Initialize Git repository
@@ -24,3 +24,4 @@
 - [x] Initialize project with selected stack (React + Vite + TS)
 - [x] Refactor boilerplate code (cleanup)
 - [x] Implement initial yearly calendar grid layout (no-scroll)
+- [x] Implement actual calendar day calculations (2026)
