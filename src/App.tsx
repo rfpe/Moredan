@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
 import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber } from './utils/calendar';
+import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
@@ -79,6 +80,13 @@ function App() {
   useEffect(() => {
     localStorage.setItem('moredan_show_week_numbers', String(showWeekNumbers));
   }, [showWeekNumbers]);
+
+  const handleLoadDemoData = () => {
+    setCategories(DEMO_CATEGORIES);
+    setEvents(generateDemoEvents(currentYear));
+    setVisibleCategories(new Set(DEMO_CATEGORIES.map(c => c.id)));
+    setIsSettingsModalOpen(false);
+  };
 
   const handleExportCSV = () => {
     const header = ['Name', 'Start Date', 'End Date', 'Category', 'Color'];
@@ -344,6 +352,7 @@ function App() {
           onWeekdayAlignChange={setWeekdayAlign}
           showWeekNumbers={showWeekNumbers}
           onShowWeekNumbersChange={setShowWeekNumbers}
+          onLoadDemoData={handleLoadDemoData}
           onClose={() => setIsSettingsModalOpen(false)}
         />
       </Modal>
