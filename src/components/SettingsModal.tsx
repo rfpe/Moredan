@@ -7,6 +7,7 @@ interface SettingsModalProps {
   onWeekdayAlignChange: (value: boolean) => void;
   showWeekNumbers: boolean;
   onShowWeekNumbersChange: (value: boolean) => void;
+  onLoadDemoData: () => void;
   onClose: () => void;
 }
 
@@ -32,6 +33,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onWeekdayAlignChange,
   showWeekNumbers,
   onShowWeekNumbersChange,
+  onLoadDemoData,
   onClose,
 }) => {
   const browserLocale = navigator.language;
@@ -86,6 +88,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <span>Show week numbers</span>
         </label>
         <span className="settings-hint">ISO 8601 — displayed on the first day of each week.</span>
+      </div>
+
+      <div className="settings-demo-section">
+        <button type="button" className="demo-btn" onClick={onLoadDemoData}>
+          Load Demo Data
+        </button>
+        <span className="settings-hint">Replaces all current events and categories with sample data.</span>
       </div>
 
       <div className="form-actions">
