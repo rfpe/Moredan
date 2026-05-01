@@ -72,6 +72,28 @@ function App() {
     localStorage.setItem('moredan_weekday_align', String(weekdayAlign));
   }, [weekdayAlign]);
 
+  const handleExportCSV = () => {
+    const header = ['Name', 'Start Date', 'End Date', 'Category', 'Color'];
+    const rows = events.map(e => {
+      const cat = categories.find(c => c.id === e.categoryId);
+      return [
+        `"${e.name.replace(/"/g, '""')}"`,
+        e.start.toISOString().split('T')[0],
+        e.end.toISOString().split('T')[0],
+        `"${(cat?.name ?? '').replace(/"/g, '""')}"`,
+        cat?.color ?? '',
+      ].join(',');
+    });
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `moredan-${currentYear}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
     if (newVisible.has(id)) {
@@ -183,6 +205,7 @@ function App() {
         <div className="controls">
           <button className="primary-btn" onClick={() => openAddEvent()}>Add Event</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>Categories</button>
+          <button className="secondary-btn" onClick={handleExportCSV}>Export CSV</button>
           <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title="Settings">⚙</button>
         </div>
       </header>
