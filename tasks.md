@@ -2,14 +2,17 @@
 
 ## Open Tasks
 - [x] Implement Phase 1: Core Linear Grid (12 rows x 31 days)
-- [x] Implement Phase 2: Spanning Logic (Month-to-month split)
-- [x] Implement Phase 3: Stacking & Titles (Vertical stacking algorithm)
+- [x] Implement Phase 1 (Enhanced): Top-left labels & Unified spans
+- [x] Fix Event Spanning & Title Truncation bugs
+- [ ] Implement Phase 2: Simple Snaking Connection (Vertical month-to-month links)
+- [ ] Implement Phase 3: Stacking refinement (Sync snakes across rows)
 - [ ] Implement Phase 4: Interaction (Edit/Delete from new layout)
 - [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment
+- [ ] Roadmap Enhancement: User-selectable locale for dates (default to browser)
+- [ ] Roadmap Enhancement: Advanced styled "S-curve" snaking
 
 ## Next Tasks
-- [ ] Refine event deletion from the new layout
-- [ ] Improve Add Event modal (default to clicked date)
+- [ ] Implement simple snaking vertical connectors in App.tsx
 
 ## Pending Decisions
 - [ ] None.

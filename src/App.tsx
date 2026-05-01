@@ -130,7 +130,7 @@ function App() {
         {yearData.map((month) => {
           const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
-          const rowHeight = 40 + (maxOffset + 1) * 22; // Base height (including text) + stacking height
+          const rowHeight = 40 + (maxOffset + 1) * 22;
 
           return (
             <div 
@@ -153,30 +153,35 @@ function App() {
               ))}
 
               {/* Event Spans */}
-              {monthSpans.map((span) => {
-                const event = events.find(e => e.id === span.eventId);
-                const category = categories.find(c => c.id === event?.categoryId);
-                
-                return (
-                  <div
-                    key={`${month.index}-${span.eventId}`}
-                    className="event-bar"
-                    style={{
-                      gridColumnStart: span.startColumn,
-                      gridColumnEnd: span.endColumn,
-                      top: `${20 + span.rowOffset * 22}px`, // Adjusted top to avoid text
-                      backgroundColor: category?.color,
-                    }}
-                    title={event?.name}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedDay({ month: month.index, day: new Date(event!.start).getDate() });
-                    }}
-                  >
-                    {event?.name}
-                  </div>
-                );
-              })}
+              <div className="event-row-overlay">
+                {monthSpans.map((span) => {
+                  const event = events.find(e => e.id === span.eventId);
+                  const category = categories.find(c => c.id === event?.categoryId);
+                  
+                  return (
+                    <div
+                      key={`${month.index}-${span.eventId}`}
+                      className="event-bar"
+                      style={{
+                        gridColumnStart: span.startColumn,
+                        gridColumnEnd: span.endColumn,
+                        top: `${20 + span.rowOffset * 22}px`,
+                        backgroundColor: category?.color,
+                        // Ensure bar spans correctly in the grid
+                        position: 'relative',
+                        gridRow: 1
+                      }}
+                      title={event?.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDay({ month: month.index, day: new Date(event!.start).getDate() });
+                      }}
+                    >
+                      <span className="event-title">{event?.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
