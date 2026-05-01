@@ -1,13 +1,13 @@
-export interface Category {
+export type Category = {
   id: string;
   name: string;
   color: string;
-}
+};
 
-export interface CalendarEvent {
+export type CalendarEvent = {
   id: string;
   name: string;
   start: Date;
   end: Date;
   categoryId: string;
-}
+};

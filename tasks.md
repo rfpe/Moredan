@@ -29,3 +29,4 @@
 - [x] Implement event deletion (click day to view/delete)
 - [x] Final visual polish
 - [x] Final "no-scroll" validation
+- [x] Fix TypeScript 'verbatimModuleSyntax' build errors

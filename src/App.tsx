@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
 import { generateYearData } from './utils/calendar';
-import { Category, CalendarEvent } from './types';
+import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
 import CategoryForm from './components/CategoryForm';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Category, CalendarEvent } from '../types';
+import { type Category, type CalendarEvent } from '../types';
 
 interface EventFormProps {
   categories: Category[];

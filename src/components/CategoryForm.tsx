@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Category } from '../types';
+import { type Category } from '../types';
 
 interface CategoryFormProps {
   categories: Category[];
