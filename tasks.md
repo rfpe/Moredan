@@ -6,9 +6,13 @@
 - [x] Fix Event Spanning & Title Truncation bugs
 - [ ] Implement Phase 2: Simple Snaking Connection (Vertical month-to-month links)
 - [ ] Implement Phase 3: Stacking refinement (Sync snakes across rows)
-- [ ] Implement Phase 4: Interaction (Edit/Delete from new layout)
-- [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment
+- [ ] Implement Phase 4: Interaction (Direct edit from bar; Row-based edit with pencil icon on hover in day detail)
+- [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment (vs 1st-day alignment toggle)
+- [ ] Roadmap Enhancement: Switchable year (selector for 2026, 2027, etc.)
+- [ ] Roadmap Enhancement: User Layout Preferences (Toggles for label positioning, alignment modes)
 - [ ] Roadmap Enhancement: User-selectable locale for dates (default to browser)
+- [ ] Roadmap Enhancement: Export data to TXT/CSV/Excel formats
+- [ ] Roadmap Enhancement: White-labeling (Branding, logos, custom themes, fonts)
 - [ ] Roadmap Enhancement: Advanced styled "S-curve" snaking
 
 ## Next Tasks
