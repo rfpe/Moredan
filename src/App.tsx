@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import './App.css'
 import { generateYearData } from './utils/calendar';
 import { Category, CalendarEvent } from './types';
+import Modal from './components/Modal';
+import EventForm from './components/EventForm';
 
 function App() {
   const currentYear = 2026;
@@ -20,6 +22,7 @@ function App() {
   ]);
 
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
@@ -29,6 +32,15 @@ function App() {
       newVisible.add(id);
     }
     setVisibleCategories(newVisible);
+  };
+
+  const handleAddEvent = (eventData: Omit<CalendarEvent, 'id'>) => {
+    const newEvent: CalendarEvent = {
+      ...eventData,
+      id: Math.random().toString(36).substr(2, 9),
+    };
+    setEvents([...events, newEvent]);
+    setIsEventModalOpen(false);
   };
 
   const getEventsForDay = (monthIndex: number, day: number) => {
@@ -68,7 +80,7 @@ function App() {
         </div>
 
         <div className="controls">
-          <button className="primary-btn">Add Event</button>
+          <button className="primary-btn" onClick={() => setIsEventModalOpen(true)}>Add Event</button>
           <button className="secondary-btn">Categories</button>
         </div>
       </header>
@@ -114,6 +126,18 @@ function App() {
           </div>
         ))}
       </main>
+
+      <Modal 
+        isOpen={isEventModalOpen} 
+        onClose={() => setIsEventModalOpen(false)} 
+        title="Add New Event"
+      >
+        <EventForm 
+          categories={categories} 
+          onSubmit={handleAddEvent} 
+          onCancel={() => setIsEventModalOpen(false)} 
+        />
+      </Modal>
     </div>
   )
 }

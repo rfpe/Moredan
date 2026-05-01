@@ -3,17 +3,16 @@
 ## Open Tasks
 - [ ] Create UI/UX design mockup (concept)
 - [ ] Implement category management (CRUD)
-- [ ] Implement event management (CRUD)
-- [ ] Create "Add Event" modal/form
 - [ ] Create "Manage Categories" modal/form
+- [ ] Implement data persistence (LocalStorage)
 
 ## Next Tasks
-- [ ] Create reusable Modal component
-- [ ] Implement Add Event form
-- [ ] Implement Category Management form
+- [ ] Create CategoryForm component
+- [ ] Implement Category Management modal in App.tsx
+- [ ] Add persistence layer (LocalStorage)
 
 ## Pending Decisions
-- [ ] How to handle state persistence? (Local storage for now)
+- [ ] Should categories be deletable? (Yes, but need to handle events with deleted categories - maybe reassign to 'General' or delete events too).
 
 ## Done Tasks
 - [x] Initialize Git repository
@@ -27,3 +26,6 @@
 - [x] Implement actual calendar day calculations (2026)
 - [x] Implement event rendering in day cells
 - [x] Implement event filtering by category visibility
+- [x] Create reusable Modal component
+- [x] Implement Add Event form
+- [x] Integrate Add Event modal in App.tsx
