@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset } from './utils/calendar';
 import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
@@ -17,6 +17,11 @@ function App() {
     return localStorage.getItem('moredan_locale') ?? navigator.language;
   });
 
+  const [weekdayAlign, setWeekdayAlign] = useState<boolean>(() => {
+    return localStorage.getItem('moredan_weekday_align') === 'true';
+  });
+
+  const weekStart = useMemo(() => getWeekStart(locale), [locale]);
   const yearData = useMemo(() => generateYearData(currentYear, locale), [currentYear, locale]);
 
   const [categories, setCategories] = useState<Category[]>(() => {
@@ -62,6 +67,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('moredan_locale', locale);
   }, [locale]);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_weekday_align', String(weekdayAlign));
+  }, [weekdayAlign]);
 
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
@@ -179,18 +188,45 @@ function App() {
       </header>
 
       <main className="calendar-container">
+        {/* Weekday header row — only in weekday-alignment mode */}
+        {weekdayAlign && (() => {
+          // Anchor date: a known Sunday (Jan 5 2025) to derive weekday names by index
+          const anchor = new Date(2025, 0, 5);
+          return (
+            <div className="weekday-header-row">
+              <div className="month-label" />
+              {Array.from({ length: 42 }, (_, i) => {
+                const dayIndex = (weekStart + i) % 7;
+                const date = new Date(anchor);
+                date.setDate(anchor.getDate() + dayIndex);
+                return (
+                  <div key={i} className="weekday-header-cell">
+                    {date.toLocaleString(locale, { weekday: 'short' })}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
         {yearData.map((month) => {
-          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories);
+          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories, weekdayAlign, weekStart);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
           const rowHeight = 40 + (maxOffset + 1) * 22;
+          const offset = weekdayAlign ? getMonthOffset(currentYear, month.index, weekStart) : 0;
 
           return (
             <div
               key={month.name}
-              className="month-row"
+              className={`month-row${weekdayAlign ? ' month-row--weekday' : ''}`}
               style={{ minHeight: `${rowHeight}px` }}
             >
               <div className="month-label">{month.name}</div>
+
+              {/* Offset cells (empty weekday slots before day 1) */}
+              {Array.from({ length: offset }, (_, i) => (
+                <div key={`offset-${i}`} className="day-cell day-cell--offset" />
+              ))}
 
               {/* Background Grid */}
               {month.days.map((day) => (
@@ -200,7 +236,7 @@ function App() {
                   onClick={() => handleDayCellClick(month.index, day.dayNumber)}
                 >
                   <span className="day-number">{day.dayNumber}</span>
-                  <span className="day-weekday">{day.weekday}</span>
+                  {!weekdayAlign && <span className="day-weekday">{day.weekday}</span>}
                 </div>
               ))}
 
@@ -267,6 +303,8 @@ function App() {
         <SettingsModal
           locale={locale}
           onLocaleChange={setLocale}
+          weekdayAlign={weekdayAlign}
+          onWeekdayAlignChange={setWeekdayAlign}
           onClose={() => setIsSettingsModalOpen(false)}
         />
       </Modal>

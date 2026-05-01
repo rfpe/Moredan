@@ -12,7 +12,7 @@
 - [x] Implement Phase 2: Simple Snaking Connection (Vertical nubs at month boundaries)
 - [ ] Implement Phase 3: Stacking refinement (Sync snakes across rows)
 - [x] Implement Phase 4: Interaction
-- [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment (vs 1st-day alignment toggle)
+- [x] Implement Phase 5: Vertical Weekday Alignment
 - [x] Roadmap Enhancement: Switchable year (selector for 2026, 2027, etc.)
 - [ ] Roadmap Enhancement: User Layout Preferences (Toggles for label positioning, alignment modes)
 - [x] Roadmap Enhancement: User-selectable locale for dates
@@ -63,8 +63,26 @@
 4. [x] Style gear button in `App.css`
 5. [x] Visual QA: switch locales, verify month/weekday names update, layout stays LTR
 
+## Phase 5 Plan (branch: feature-weekday-alignment)
+**Design decisions:**
+- Week start day derived from locale via `Intl.Locale.weekInfo`, fallback to Monday
+- Grid always 42 slots (6 weeks) in weekday mode; consistent column widths across all months
+- Offset cells (before day 1): subtle crosshatch, no click, no day number
+- Weekday header row above timeline; weekday labels removed from day cells in weekday mode
+- Toggle in Settings modal alongside locale selector
+
+**Implementation steps:**
+1. [x] Add `getWeekStart`, `getMonthOffset` to `calendar.ts`; extend `getMonthSpans` with weekday-align params
+2. [x] Add alignment toggle to `SettingsModal.tsx`
+3. [x] Wire `weekdayAlign` state + weekday header row + offset cells in `App.tsx`
+4. [x] Add CSS for 42-column grid, header row, offset crosshatch
+5. [ ] Visual QA: test all months, event bars, snaking nubs, locale changes
+
 ## Next Tasks
 - [ ] Implement Phase 3: Stacking sync across rows for snaking events
+
+## Known Bugs
+- [ ] **Weekday mode: event bar misalignment when stacking.** Repro: Event A (1/2–1/2) and Event B (1/3–1/5) in January. Event A renders starting at day 1/1 (one column too far left), Event B ends at 1/6 (one column too far right). Stacking logic (greedy row assignment) also misbehaves. Root cause likely in `startColumn`/`endColumn` offset calculation in `getMonthSpans` — the `+1`/`+2` adjustments may need revisiting when `offset > 0`.
 
 ## Pending Decisions
 - [ ] None.

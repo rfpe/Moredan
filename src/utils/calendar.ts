@@ -6,6 +6,27 @@ export const getFirstDayOfMonth = (year: number, month: number) => {
   return new Date(year, month, 1).getDay();
 };
 
+// Returns 0 for Sunday-first, 1 for Monday-first locales.
+export const getWeekStart = (locale: string): number => {
+  try {
+    const loc = new Intl.Locale(locale) as any;
+    const firstDay = loc.weekInfo?.firstDay ?? loc.getWeekInfo?.()?.firstDay;
+    if (firstDay !== undefined) {
+      // Intl firstDay: 1=Mon … 7=Sun. Normalize to JS convention: 0=Sun, 1=Mon.
+      return firstDay === 7 ? 0 : 1;
+    }
+  } catch {}
+  // Fallback: Sunday-first for these regions, Monday for the rest.
+  const sundayFirst = ['en-US', 'en-CA', 'zh-CN', 'ja-JP', 'ko-KR', 'ar-SA'];
+  return sundayFirst.includes(locale) ? 0 : 1;
+};
+
+// Number of empty offset cells before day 1 in weekday-alignment mode.
+export const getMonthOffset = (year: number, month: number, weekStart: number): number => {
+  const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Sun … 6=Sat
+  return (firstDayOfWeek - weekStart + 7) % 7;
+};
+
 export const generateYearData = (year: number, locale: string = 'default') => {
   const months = [];
   for (let m = 0; m < 12; m++) {
@@ -45,34 +66,36 @@ export const getMonthSpans = (
   events: any[],
   monthIndex: number,
   year: number,
-  visibleCategoryIds: Set<string>
+  visibleCategoryIds: Set<string>,
+  weekdayAlign: boolean = false,
+  weekStart: number = 1
 ): EventSpan[] => {
   const monthStart = new Date(year, monthIndex, 1);
   const monthEnd = new Date(year, monthIndex + 1, 0);
   const daysInMonth = monthEnd.getDate();
+  const offset = weekdayAlign ? getMonthOffset(year, monthIndex, weekStart) : 0;
 
   // 1. Filter and project events onto this month
   const spans: Omit<EventSpan, 'rowOffset'>[] = [];
-  
+
   events.forEach(event => {
     if (!visibleCategoryIds.has(event.categoryId)) return;
 
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
-    
-    // Normalize to start of day for comparison
+
     eventStart.setHours(0, 0, 0, 0);
     eventEnd.setHours(0, 0, 0, 0);
 
-    // Check if event overlaps with this month
     if (eventStart <= monthEnd && eventEnd >= monthStart) {
       const startDay = eventStart < monthStart ? 1 : eventStart.getDate();
       const endDay = eventEnd > monthEnd ? daysInMonth : eventEnd.getDate();
 
+      // +1 for month label column, +offset for empty weekday cells
       spans.push({
         eventId: event.id,
-        startColumn: startDay + 1, // +1 for month label column
-        endColumn: endDay + 2,   // grid end is exclusive, +1 for label, +1 for inclusive day
+        startColumn: startDay + 1 + offset,
+        endColumn: endDay + 2 + offset,
         isStartContinuation: eventStart < monthStart,
         isEndContinuation: eventEnd > monthEnd
       });
@@ -80,23 +103,19 @@ export const getMonthSpans = (
   });
 
   // 2. Greedy Stacking
-  // Sort by start column then duration (longer first)
   const sortedSpans = [...spans].sort((a, b) => {
     if (a.startColumn !== b.startColumn) return a.startColumn - b.startColumn;
     return (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn);
   });
 
   const positionedSpans: EventSpan[] = [];
-  const rows: number[][] = []; // Array of end positions per row
+  const rows: number[][] = [];
 
   sortedSpans.forEach(span => {
     let rowIndex = 0;
     while (true) {
       if (!rows[rowIndex]) rows[rowIndex] = [];
-      
-      // Check if this row is free for the span's duration
       const hasConflict = rows[rowIndex].some(rowEnd => span.startColumn < rowEnd);
-      
       if (!hasConflict) {
         rows[rowIndex].push(span.endColumn);
         positionedSpans.push({ ...span, rowOffset: rowIndex });
