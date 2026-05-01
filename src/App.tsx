@@ -5,6 +5,7 @@ import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
 import CategoryForm from './components/CategoryForm';
+import SettingsModal from './components/SettingsModal';
 
 function App() {
   const [currentYear, setCurrentYear] = useState(() => {
@@ -12,7 +13,11 @@ function App() {
     return saved ? parseInt(saved, 10) : 2026;
   });
 
-  const yearData = useMemo(() => generateYearData(currentYear), [currentYear]);
+  const [locale, setLocale] = useState<string>(() => {
+    return localStorage.getItem('moredan_locale') ?? navigator.language;
+  });
+
+  const yearData = useMemo(() => generateYearData(currentYear, locale), [currentYear, locale]);
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('moredan_categories');
@@ -38,6 +43,7 @@ function App() {
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [prefillDate, setPrefillDate] = useState<string | null>(null);
 
@@ -52,6 +58,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('moredan_current_year', currentYear.toString());
   }, [currentYear]);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_locale', locale);
+  }, [locale]);
 
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
@@ -164,6 +174,7 @@ function App() {
         <div className="controls">
           <button className="primary-btn" onClick={() => openAddEvent()}>Add Event</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>Categories</button>
+          <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title="Settings">⚙</button>
         </div>
       </header>
 
@@ -245,6 +256,18 @@ function App() {
           onDelete={editingEvent ? () => handleDeleteEvent(editingEvent.id) : undefined}
           initialEvent={editingEvent ?? undefined}
           initialDate={prefillDate ?? undefined}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        title="Settings"
+      >
+        <SettingsModal
+          locale={locale}
+          onLocaleChange={setLocale}
+          onClose={() => setIsSettingsModalOpen(false)}
         />
       </Modal>
 

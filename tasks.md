@@ -1,5 +1,10 @@
 # Project Management - Tasks
 
+## Legend
+- [ ] Open
+- [~] In progress
+- [x] Done
+
 ## Open Tasks
 - [x] Implement Phase 1: Core Linear Grid (12 rows x 31 days)
 - [x] Implement Phase 1 (Enhanced): Top-left labels & Unified spans
@@ -10,7 +15,7 @@
 - [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment (vs 1st-day alignment toggle)
 - [x] Roadmap Enhancement: Switchable year (selector for 2026, 2027, etc.)
 - [ ] Roadmap Enhancement: User Layout Preferences (Toggles for label positioning, alignment modes)
-- [ ] Roadmap Enhancement: User-selectable locale for dates (default to browser)
+- [x] Roadmap Enhancement: User-selectable locale for dates
 - [ ] Roadmap Enhancement: Export data to TXT/CSV/Excel formats
 - [ ] Roadmap Enhancement: White-labeling (Branding, logos, custom themes, fonts)
 - [ ] Roadmap Enhancement: Advanced styled "S-curve" snaking
@@ -43,6 +48,20 @@
 3. [ ] Visual QA: test add pre-fill, edit, delete from bar, year-agnostic dates
 
 **Improvement idea:** Day summary view — a way to see all events on a given day at a glance (removed with day detail modal; could be a hover tooltip or a dedicated panel in a future phase)
+
+## Locale Feature Plan (branch: feature-locale)
+**Design decisions:**
+- Locale stored in `localStorage('moredan_locale')`, defaults to `navigator.language`
+- Settings modal (gear icon in header) houses locale selector and future preferences
+- Predefined list of 12 locales shown by their native name; "Browser default (xx-XX)" prepended
+- Only month/weekday labels localised; all UI stays in English; layout stays LTR
+
+**Implementation steps:**
+1. [x] Update `generateYearData` in `calendar.ts` to accept a `locale` param
+2. [x] Create `src/components/SettingsModal.tsx` with locale dropdown
+3. [x] Add `locale` state + gear button + settings modal wiring in `App.tsx`
+4. [x] Style gear button in `App.css`
+5. [ ] Visual QA: switch locales, verify month/weekday names update, layout stays LTR
 
 ## Next Tasks
 - [ ] Implement Phase 3: Stacking sync across rows for snaking events
