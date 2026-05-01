@@ -5,6 +5,8 @@ interface SettingsModalProps {
   onLocaleChange: (locale: string) => void;
   weekdayAlign: boolean;
   onWeekdayAlignChange: (value: boolean) => void;
+  showWeekNumbers: boolean;
+  onShowWeekNumbersChange: (value: boolean) => void;
   onClose: () => void;
 }
 
@@ -28,6 +30,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onLocaleChange,
   weekdayAlign,
   onWeekdayAlignChange,
+  showWeekNumbers,
+  onShowWeekNumbersChange,
   onClose,
 }) => {
   const browserLocale = navigator.language;
@@ -70,6 +74,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <span className="settings-hint">Columns align by weekday across all months.</span>
           </label>
         </div>
+      </div>
+
+      <div className="form-group">
+        <label className="settings-checkbox-item">
+          <input
+            type="checkbox"
+            checked={showWeekNumbers}
+            onChange={e => onShowWeekNumbersChange(e.target.checked)}
+          />
+          <span>Show week numbers</span>
+        </label>
+        <span className="settings-hint">ISO 8601 — displayed on the first day of each week.</span>
       </div>
 
       <div className="form-actions">

@@ -133,6 +133,29 @@
   margin-top: 0;
 }
 
+.settings-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.week-number-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #64748b;
+  line-height: 1;
+  pointer-events: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  padding: 1px 2px;
+  background-color: #f1f5f9;
+}
+
 .calendar-container {
   flex: 1;
   overflow-y: auto;

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber } from './utils/calendar';
 import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
@@ -19,6 +19,10 @@ function App() {
 
   const [weekdayAlign, setWeekdayAlign] = useState<boolean>(() => {
     return localStorage.getItem('moredan_weekday_align') === 'true';
+  });
+
+  const [showWeekNumbers, setShowWeekNumbers] = useState<boolean>(() => {
+    return localStorage.getItem('moredan_show_week_numbers') === 'true';
   });
 
   const weekStart = useMemo(() => getWeekStart(locale), [locale]);
@@ -71,6 +75,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('moredan_weekday_align', String(weekdayAlign));
   }, [weekdayAlign]);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_show_week_numbers', String(showWeekNumbers));
+  }, [showWeekNumbers]);
 
   const handleExportCSV = () => {
     const header = ['Name', 'Start Date', 'End Date', 'Category', 'Color'];
@@ -252,16 +260,22 @@ function App() {
               ))}
 
               {/* Background Grid */}
-              {month.days.map((day) => (
-                <div
-                  key={day.dayNumber}
-                  className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
-                  onClick={() => handleDayCellClick(month.index, day.dayNumber)}
-                >
-                  <span className="day-number">{day.dayNumber}</span>
-                  {!weekdayAlign && <span className="day-weekday">{day.weekday}</span>}
-                </div>
-              ))}
+              {month.days.map((day) => {
+                const date = new Date(currentYear, month.index, day.dayNumber);
+                const isWeekStart = date.getDay() === weekStart;
+                const weekNum = showWeekNumbers && isWeekStart ? getISOWeekNumber(date) : null;
+                return (
+                  <div
+                    key={day.dayNumber}
+                    className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
+                    onClick={() => handleDayCellClick(month.index, day.dayNumber)}
+                  >
+                    <span className="day-number">{day.dayNumber}</span>
+                    {!weekdayAlign && <span className="day-weekday">{day.weekday}</span>}
+                    {weekNum !== null && <span className="week-number-badge">{weekNum}</span>}
+                  </div>
+                );
+              })}
 
               {/* Event Spans */}
               <div className="event-row-overlay">
@@ -328,6 +342,8 @@ function App() {
           onLocaleChange={setLocale}
           weekdayAlign={weekdayAlign}
           onWeekdayAlignChange={setWeekdayAlign}
+          showWeekNumbers={showWeekNumbers}
+          onShowWeekNumbersChange={setShowWeekNumbers}
           onClose={() => setIsSettingsModalOpen(false)}
         />
       </Modal>
