@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(git merge phase-2-snaking --no-ff -m ' *)",
+      "Bash(git merge phase-4-interaction --no-ff -m ' *)"
+    ]
+  }
+}
