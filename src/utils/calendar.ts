@@ -118,15 +118,17 @@ export const getMonthSpans = (
   });
 
   const positionedSpans: EventSpan[] = [];
-  const rows: number[][] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
 
   sortedSpans.forEach(span => {
     let rowIndex = 0;
     while (true) {
       if (!rows[rowIndex]) rows[rowIndex] = [];
-      const hasConflict = rows[rowIndex].some(rowEnd => span.startColumn < rowEnd);
+      const hasConflict = rows[rowIndex].some(
+        existing => span.startColumn < existing.end && span.endColumn > existing.start
+      );
       if (!hasConflict) {
-        rows[rowIndex].push(span.endColumn);
+        rows[rowIndex].push({ start: span.startColumn, end: span.endColumn });
         positionedSpans.push({ ...span, rowOffset: rowIndex });
         break;
       }

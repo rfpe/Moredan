@@ -7,6 +7,20 @@
   background-color: #f8fafc;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
 .title-section {
   display: flex;
   align-items: center;
@@ -289,6 +303,7 @@
   bottom: 0;
   display: grid;
   grid-template-columns: 60px repeat(31, 1fr);
+  column-gap: 1px;
   pointer-events: none;
 }
 

@@ -29,7 +29,7 @@
 - [ ] Day summary view — see all events on a given day at a glance (removed with old day detail modal; tooltip or side panel)
 
 ## Known Bugs
-- [ ] **Weekday mode: event bar misalignment when stacking.** Repro: Event A (1/2–1/2) and Event B (1/3–1/5) in January. Event A renders starting at day 1/1 (one column too far left), Event B ends at 1/6 (one column too far right). Stacking logic also misbehaves. Root cause likely in `startColumn`/`endColumn` offset arithmetic in `getMonthSpans`.
+- [x] **Weekday mode: stacking false-positive.** Fixed in `getMonthSpans`: rows now store `{start, end}` pairs; overlap check uses `newStart < existingEnd && newEnd > existingStart` instead of just `newStart < existingEnd`.
 
 ## Pending Decisions
 - [ ] None.

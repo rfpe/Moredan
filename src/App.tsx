@@ -187,9 +187,9 @@ function App() {
   };
 
   const handleDayCellClick = (monthIndex: number, dayNumber: number) => {
-    const date = new Date(currentYear, monthIndex, dayNumber);
-    const dateStr = date.toISOString().split('T')[0];
-    openAddEvent(dateStr);
+    const m = String(monthIndex + 1).padStart(2, '0');
+    const d = String(dayNumber).padStart(2, '0');
+    openAddEvent(`${currentYear}-${m}-${d}`);
   };
 
   return (
