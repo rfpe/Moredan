@@ -72,7 +72,7 @@
   background-color: #e2e8f0;
   border: 1px solid #e2e8f0;
   margin-bottom: 0.5rem;
-  min-height: 60px;
+  min-height: 50px;
   position: relative;
 }
 
@@ -119,32 +119,28 @@
   text-transform: uppercase;
 }
 
-/* Event Spans (Phase 2 & 3) */
-.event-layer {
-  position: absolute;
-  top: 25px; /* Below day numbers */
-  left: 60px;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  grid-template-columns: repeat(31, 1fr);
-  pointer-events: none;
-}
-
 .event-bar {
-  pointer-events: auto;
+  position: absolute;
   height: 18px;
-  border-radius: 3px;
-  font-size: 0.6rem;
-  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  padding: 0 6px;
   color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-  margin-bottom: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  z-index: 10;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+
+.event-bar:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  z-index: 20;
 }
 
 /* Forms & Modals */

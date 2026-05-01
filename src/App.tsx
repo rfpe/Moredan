@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
-import { generateYearData } from './utils/calendar';
+import { generateYearData, getMonthSpans } from './utils/calendar';
 import { type Category, type CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
@@ -127,28 +127,62 @@ function App() {
       </header>
       
       <main className="calendar-container">
-        {yearData.map((month) => (
-          <div key={month.name} className="month-row">
-            <div className="month-label">{month.name}</div>
-            
-            {/* Background Grid */}
-            {month.days.map((day) => (
-              <div 
-                key={day.dayNumber} 
-                className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
-                onClick={() => setSelectedDay({ month: month.index, day: day.dayNumber })}
-              >
-                <span className="day-number">{day.dayNumber}</span>
-                <span className="day-weekday">{day.weekday}</span>
-              </div>
-            ))}
+        {yearData.map((month) => {
+          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories);
+          const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
+          const rowHeight = 30 + (maxOffset + 1) * 20; // Base height + stacking height
 
-            {/* Event Spans (To be implemented in Phase 2 & 3) */}
-            <div className="event-layer">
-              {/* Event bars will be rendered here */}
+          return (
+            <div 
+              key={month.name} 
+              className="month-row" 
+              style={{ minHeight: `${rowHeight}px` }}
+            >
+              <div className="month-label">{month.name}</div>
+              
+              {/* Background Grid */}
+              {month.days.map((day) => (
+                <div 
+                  key={day.dayNumber} 
+                  className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
+                  onClick={() => setSelectedDay({ month: month.index, day: day.dayNumber })}
+                >
+                  <span className="day-number">{day.dayNumber}</span>
+                  <span className="day-weekday">{day.weekday}</span>
+                </div>
+              ))}
+
+              {/* Event Spans */}
+              {monthSpans.map((span) => {
+                const event = events.find(e => e.id === span.eventId);
+                const category = categories.find(c => c.id === event?.categoryId);
+                
+                return (
+                  <div
+                    key={`${month.index}-${span.eventId}`}
+                    className="event-bar"
+                    style={{
+                      gridColumnStart: span.startColumn,
+                      gridColumnEnd: span.endColumn,
+                      top: `${28 + span.rowOffset * 20}px`,
+                      backgroundColor: category?.color,
+                      borderLeft: span.isStartContinuation ? 'none' : '2px solid rgba(0,0,0,0.1)',
+                      borderRight: span.isEndContinuation ? 'none' : '2px solid rgba(0,0,0,0.1)',
+                      borderRadius: `${span.isStartContinuation ? '0' : '4px'} ${span.isEndContinuation ? '0' : '4px'} ${span.isEndContinuation ? '0' : '4px'} ${span.isStartContinuation ? '0' : '4px'}`
+                    }}
+                    title={event?.name}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedDay({ month: month.index, day: new Date(event!.start).getDate() });
+                    }}
+                  >
+                    {event?.name}
+                  </div>
+                );
+              })}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </main>
 
       <Modal 
@@ -202,9 +236,7 @@ function App() {
             className="primary-btn full-width" 
             style={{ marginTop: '1rem' }}
             onClick={() => {
-              const day = selectedDay;
               setSelectedDay(null);
-              // Future improvement: pre-fill date in Add Event modal
               setIsEventModalOpen(true);
             }}
           >
