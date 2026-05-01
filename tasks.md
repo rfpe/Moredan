@@ -2,14 +2,14 @@
 
 ## Open Tasks
 - [x] Implement Phase 1: Core Linear Grid (12 rows x 31 days)
-- [ ] Implement Phase 2: Spanning Logic (Month-to-month split)
-- [ ] Implement Phase 3: Stacking & Titles (Vertical stacking algorithm)
+- [x] Implement Phase 2: Spanning Logic (Month-to-month split)
+- [x] Implement Phase 3: Stacking & Titles (Vertical stacking algorithm)
 - [ ] Implement Phase 4: Interaction (Edit/Delete from new layout)
 - [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment
 
 ## Next Tasks
-- [ ] Implement event spanning logic in App.tsx
-- [ ] Handle multi-month event continuation
+- [ ] Refine event deletion from the new layout
+- [ ] Improve Add Event modal (default to clicked date)
 
 ## Pending Decisions
 - [ ] None.

@@ -130,7 +130,7 @@ function App() {
         {yearData.map((month) => {
           const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
-          const rowHeight = 30 + (maxOffset + 1) * 20; // Base height + stacking height
+          const rowHeight = 40 + (maxOffset + 1) * 22; // Base height (including text) + stacking height
 
           return (
             <div 
@@ -164,11 +164,8 @@ function App() {
                     style={{
                       gridColumnStart: span.startColumn,
                       gridColumnEnd: span.endColumn,
-                      top: `${28 + span.rowOffset * 20}px`,
+                      top: `${20 + span.rowOffset * 22}px`, // Adjusted top to avoid text
                       backgroundColor: category?.color,
-                      borderLeft: span.isStartContinuation ? 'none' : '2px solid rgba(0,0,0,0.1)',
-                      borderRight: span.isEndContinuation ? 'none' : '2px solid rgba(0,0,0,0.1)',
-                      borderRadius: `${span.isStartContinuation ? '0' : '4px'} ${span.isEndContinuation ? '0' : '4px'} ${span.isEndContinuation ? '0' : '4px'} ${span.isStartContinuation ? '0' : '4px'}`
                     }}
                     title={event?.name}
                     onClick={(e) => {

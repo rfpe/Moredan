@@ -10,7 +10,6 @@ export const generateYearData = (year: number) => {
   const months = [];
   for (let m = 0; m < 12; m++) {
     const daysInMonth = getDaysInMonth(year, m);
-    const firstDay = getFirstDayOfMonth(year, m);
     const name = new Date(year, m).toLocaleString('default', { month: 'short' });
     
     const days = [];
@@ -19,7 +18,7 @@ export const generateYearData = (year: number) => {
       const dayOfWeek = date.getDay();
       days.push({
         dayNumber: d,
-        weekday: date.toLocaleString('default', { weekday: 'narrow' }),
+        weekday: date.toLocaleString('default', { weekday: 'short' }), // 3 letters
         isWeekend: dayOfWeek === 0 || dayOfWeek === 6
       });
     }

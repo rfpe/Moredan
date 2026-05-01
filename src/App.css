@@ -90,9 +90,11 @@
 .day-cell {
   background-color: white;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 4px;
+  flex-direction: row; /* 15 Mon side by side */
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2px 4px;
+  gap: 4px;
   min-width: 0;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -114,15 +116,15 @@
 }
 
 .day-weekday {
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   color: #94a3b8;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .event-bar {
   position: absolute;
   height: 18px;
-  border-radius: 4px;
+  border-radius: 4px; /* Unified rounded corners */
   font-size: 0.65rem;
   padding: 0 6px;
   color: white;
@@ -135,6 +137,7 @@
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   transition: transform 0.1s;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .event-bar:hover {
