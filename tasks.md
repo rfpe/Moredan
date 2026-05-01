@@ -61,7 +61,7 @@
 2. [x] Create `src/components/SettingsModal.tsx` with locale dropdown
 3. [x] Add `locale` state + gear button + settings modal wiring in `App.tsx`
 4. [x] Style gear button in `App.css`
-5. [ ] Visual QA: switch locales, verify month/weekday names update, layout stays LTR
+5. [x] Visual QA: switch locales, verify month/weekday names update, layout stays LTR
 
 ## Next Tasks
 - [ ] Implement Phase 3: Stacking sync across rows for snaking events
