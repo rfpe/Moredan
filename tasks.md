@@ -1,18 +1,15 @@
 # Project Management - Tasks
 
 ## Open Tasks
-- [ ] Create UI/UX design mockup (concept)
-- [ ] Implement category management (CRUD)
-- [ ] Create "Manage Categories" modal/form
-- [ ] Implement data persistence (LocalStorage)
+- [ ] Implement event deletion (click day to view/delete)
+- [ ] Final visual polish (shadows, transitions)
+- [ ] Final "no-scroll" validation
 
 ## Next Tasks
-- [ ] Create CategoryForm component
-- [ ] Implement Category Management modal in App.tsx
-- [ ] Add persistence layer (LocalStorage)
+- [ ] Implement Day Detail modal for event deletion
 
 ## Pending Decisions
-- [ ] Should categories be deletable? (Yes, but need to handle events with deleted categories - maybe reassign to 'General' or delete events too).
+- [ ] None.
 
 ## Done Tasks
 - [x] Initialize Git repository
@@ -29,3 +26,5 @@
 - [x] Create reusable Modal component
 - [x] Implement Add Event form
 - [x] Integrate Add Event modal in App.tsx
+- [x] Implement category management (CRUD)
+- [x] Implement data persistence (LocalStorage)

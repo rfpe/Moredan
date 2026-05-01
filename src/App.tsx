@@ -1,28 +1,47 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './App.css'
 import { generateYearData } from './utils/calendar';
 import { Category, CalendarEvent } from './types';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
+import CategoryForm from './components/CategoryForm';
 
 function App() {
   const currentYear = 2026;
   const yearData = useMemo(() => generateYearData(currentYear), [currentYear]);
   
-  const [categories, setCategories] = useState<Category[]>([
-    { id: '1', name: 'Work', color: '#3b82f6' },
-    { id: '2', name: 'Personal', color: '#10b981' },
-    { id: '3', name: 'Urgent', color: '#ef4444' },
-  ]);
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const saved = localStorage.getItem('moredan_categories');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', name: 'Work', color: '#3b82f6' },
+      { id: '2', name: 'Personal', color: '#10b981' },
+      { id: '3', name: 'Urgent', color: '#ef4444' },
+    ];
+  });
 
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    { id: 'e1', name: 'Project Kickoff', start: new Date(2026, 0, 15), end: new Date(2026, 0, 15), categoryId: '1' },
-    { id: 'e2', name: 'Vacation', start: new Date(2026, 5, 10), end: new Date(2026, 5, 20), categoryId: '2' },
-    { id: 'e3', name: 'Deadline', start: new Date(2026, 0, 15), end: new Date(2026, 0, 15), categoryId: '3' },
-  ]);
+  const [events, setEvents] = useState<CalendarEvent[]>(() => {
+    const saved = localStorage.getItem('moredan_events');
+    if (saved) {
+      return JSON.parse(saved).map((e: any) => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end)
+      }));
+    }
+    return [];
+  });
 
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_categories', JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem('moredan_events', JSON.stringify(events));
+  }, [events]);
 
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
@@ -43,13 +62,30 @@ function App() {
     setIsEventModalOpen(false);
   };
 
+  const handleAddCategory = (catData: Omit<Category, 'id'>) => {
+    const newCat: Category = {
+      ...catData,
+      id: Math.random().toString(36).substr(2, 9),
+    };
+    setCategories([...categories, newCat]);
+    setVisibleCategories(new Set([...visibleCategories, newCat.id]));
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    if (categories.length <= 1) return;
+    setCategories(categories.filter(c => c.id !== id));
+    setEvents(events.filter(e => e.categoryId !== id));
+    const newVisible = new Set(visibleCategories);
+    newVisible.delete(id);
+    setVisibleCategories(newVisible);
+  };
+
   const getEventsForDay = (monthIndex: number, day: number) => {
     return events.filter(event => {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
       const currentDate = new Date(currentYear, monthIndex, day);
       
-      // Normalize dates to remove time for comparison
       currentDate.setHours(0, 0, 0, 0);
       eventStart.setHours(0, 0, 0, 0);
       eventEnd.setHours(0, 0, 0, 0);
@@ -81,7 +117,7 @@ function App() {
 
         <div className="controls">
           <button className="primary-btn" onClick={() => setIsEventModalOpen(true)}>Add Event</button>
-          <button className="secondary-btn">Categories</button>
+          <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>Categories</button>
         </div>
       </header>
       
@@ -136,6 +172,19 @@ function App() {
           categories={categories} 
           onSubmit={handleAddEvent} 
           onCancel={() => setIsEventModalOpen(false)} 
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        title="Manage Categories"
+      >
+        <CategoryForm
+          categories={categories}
+          onAdd={handleAddCategory}
+          onDelete={handleDeleteCategory}
+          onCancel={() => setIsCategoryModalOpen(false)}
         />
       </Modal>
     </div>

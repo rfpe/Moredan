@@ -99,6 +99,45 @@
   justify-content: flex-start;
   padding-top: 2px;
   position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.day-cell:hover {
+  background-color: #f3f4f6;
+}
+
+.day-cell.has-events {
+  background-color: #f0f7ff;
+}
+
+.detail-event-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.event-info {
+  flex: 1;
+  margin-left: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-category {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.no-events {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem 0;
 }
 
 .day-header {
@@ -162,7 +201,43 @@
   margin-top: 1.5rem;
 }
 
-.event-form {
+.category-manager {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+.category-list h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: #374151;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid #f3f4f6;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.category-name {
+  flex: 1;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+}
+
+.delete-btn:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
 }
