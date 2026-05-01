@@ -284,6 +284,15 @@
   padding: 0 0.4rem;
 }
 
+.delete-btn--form {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ef4444;
+  border-radius: 4px;
+  margin-right: auto;
+}
+
 .day-detail {
   display: flex;
   flex-direction: column;

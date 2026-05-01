@@ -6,7 +6,7 @@
 - [x] Fix Event Spanning & Title Truncation bugs
 - [x] Implement Phase 2: Simple Snaking Connection (Vertical nubs at month boundaries)
 - [ ] Implement Phase 3: Stacking refinement (Sync snakes across rows)
-- [ ] Implement Phase 4: Interaction (Direct edit from bar; Row-based edit with pencil icon on hover in day detail)
+- [x] Implement Phase 4: Interaction
 - [ ] Implement Phase 5: Roadmap - Vertical Weekday Alignment (vs 1st-day alignment toggle)
 - [x] Roadmap Enhancement: Switchable year (selector for 2026, 2027, etc.)
 - [ ] Roadmap Enhancement: User Layout Preferences (Toggles for label positioning, alignment modes)
@@ -27,6 +27,21 @@
 2. [x] Add `.snake-nub`, `.snake-nub--end`, `.snake-nub--start` CSS classes
 3. [x] Render nub `<div>`s inside event bars in `App.tsx` based on `isEndContinuation` / `isStartContinuation`
 4. [ ] Visual QA: test with events spanning 2, 3, and 12 months
+
+## Phase 4 Plan (branch: phase-4-interaction)
+**Design decisions:**
+- Click any event bar → edit form opens directly (no day detail intermediate step)
+- Click any day cell (empty or occupied) → Add Event form opens directly, pre-filled with that date
+- Day detail modal removed (bar click replaces it for editing)
+- Edit form includes a Delete button
+- Date inputs: no year constraints (allow any date)
+
+**Implementation steps:**
+1. [x] Update `EventForm`: support edit mode via `initialEvent` prop, `initialDate` prop for pre-fill, remove hardcoded year min/max, add Delete button in edit mode, dynamic "Save"/"Update" label
+2. [x] Update `App.tsx`: add `editingEvent` state, wire bar click → edit modal, wire day cell click → add modal with pre-filled date, add `handleUpdateEvent`, remove day detail modal
+3. [ ] Visual QA: test add pre-fill, edit, delete from bar, year-agnostic dates
+
+**Improvement idea:** Day summary view — a way to see all events on a given day at a glance (removed with day detail modal; could be a hover tooltip or a dedicated panel in a future phase)
 
 ## Next Tasks
 - [ ] Implement Phase 3: Stacking sync across rows for snaking events
