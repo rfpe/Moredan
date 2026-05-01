@@ -1,12 +1,10 @@
 # Project Management - Tasks
 
 ## Open Tasks
-- [ ] Implement event deletion (click day to view/delete)
-- [ ] Final visual polish (shadows, transitions)
-- [ ] Final "no-scroll" validation
+- [ ] None.
 
 ## Next Tasks
-- [ ] Implement Day Detail modal for event deletion
+- [ ] Deploy the application
 
 ## Pending Decisions
 - [ ] None.
@@ -28,3 +26,6 @@
 - [x] Integrate Add Event modal in App.tsx
 - [x] Implement category management (CRUD)
 - [x] Implement data persistence (LocalStorage)
+- [x] Implement event deletion (click day to view/delete)
+- [x] Final visual polish
+- [x] Final "no-scroll" validation

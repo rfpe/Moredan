@@ -34,6 +34,7 @@ function App() {
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<{ month: number, day: number } | null>(null);
 
   useEffect(() => {
     localStorage.setItem('moredan_categories', JSON.stringify(categories));
@@ -60,6 +61,10 @@ function App() {
     };
     setEvents([...events, newEvent]);
     setIsEventModalOpen(false);
+  };
+
+  const handleDeleteEvent = (id: string) => {
+    setEvents(events.filter(e => e.id !== id));
   };
 
   const handleAddCategory = (catData: Omit<Category, 'id'>) => {
@@ -140,7 +145,11 @@ function App() {
                 const day = i + 1;
                 const dayEvents = getEventsForDay(month.index, day);
                 return (
-                  <div key={day} className="day-cell">
+                  <div 
+                    key={day} 
+                    className={`day-cell ${dayEvents.length > 0 ? 'has-events' : ''}`}
+                    onClick={() => setSelectedDay({ month: month.index, day })}
+                  >
                     <span className="day-number">{day}</span>
                     <div className="event-indicators">
                       {dayEvents.map(event => {
@@ -186,6 +195,41 @@ function App() {
           onDelete={handleDeleteCategory}
           onCancel={() => setIsCategoryModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={!!selectedDay}
+        onClose={() => setSelectedDay(null)}
+        title={selectedDay ? `${yearData[selectedDay.month].name} ${selectedDay.day}, ${currentYear}` : ''}
+      >
+        <div className="day-detail">
+          {selectedDay && getEventsForDay(selectedDay.month, selectedDay.day).length === 0 && (
+            <p className="no-events">No events scheduled for this day.</p>
+          )}
+          {selectedDay && getEventsForDay(selectedDay.month, selectedDay.day).map(event => {
+            const category = categories.find(c => c.id === event.categoryId);
+            return (
+              <div key={event.id} className="detail-event-item">
+                <span className="color-dot" style={{ backgroundColor: category?.color }}></span>
+                <div className="event-info">
+                  <span className="event-name">{event.name}</span>
+                  <span className="event-category">{category?.name}</span>
+                </div>
+                <button className="delete-btn" onClick={() => handleDeleteEvent(event.id)}>&times;</button>
+              </div>
+            );
+          })}
+          <button 
+            className="primary-btn full-width" 
+            style={{ marginTop: '1rem' }}
+            onClick={() => {
+              setSelectedDay(null);
+              setIsEventModalOpen(true);
+            }}
+          >
+            Add Event
+          </button>
+        </div>
       </Modal>
     </div>
   )
