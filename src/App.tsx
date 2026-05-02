@@ -163,6 +163,37 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportXLSX = async () => {
+    const ExcelJS = (await import('exceljs')).default;
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Events');
+    ws.columns = [
+      { header: 'Name',      key: 'name',     width: 32 },
+      { header: 'Start Date',key: 'start',    width: 12 },
+      { header: 'End Date',  key: 'end',      width: 12 },
+      { header: 'Category',  key: 'category', width: 16 },
+      { header: 'Color',     key: 'color',    width: 10 },
+    ];
+    events.forEach(e => {
+      const cat = categories.find(c => c.id === e.categoryId);
+      ws.addRow({
+        name:     e.name,
+        start:    e.start.toISOString().split('T')[0],
+        end:      e.end.toISOString().split('T')[0],
+        category: cat?.name ?? '',
+        color:    cat?.color ?? '',
+      });
+    });
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `moredan-${currentYear}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const toggleCategory = (id: string) => {
     const newVisible = new Set(visibleCategories);
     if (newVisible.has(id)) {
@@ -385,6 +416,7 @@ function App() {
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
           <button className="secondary-btn" onClick={handleExportCSV}>{t.exportCsv}</button>
+          <button className="secondary-btn" onClick={handleExportXLSX}>{t.exportXlsx}</button>
           <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title={t.settings}>⚙</button>
         </div>
       </header>
