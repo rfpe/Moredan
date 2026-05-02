@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Translations } from '../i18n';
 
 interface SettingsModalProps {
   locale: string;
@@ -9,6 +10,7 @@ interface SettingsModalProps {
   onShowWeekNumbersChange: (value: boolean) => void;
   onLoadDemoData: () => void;
   onClose: () => void;
+  t: Translations;
 }
 
 const LOCALES = [
@@ -23,7 +25,6 @@ const LOCALES = [
   { code: 'ja-JP', label: '日本語' },
   { code: 'zh-CN', label: '中文' },
   { code: 'ko-KR', label: '한국어' },
-  { code: 'ar-SA', label: 'العربية' },
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -35,25 +36,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onShowWeekNumbersChange,
   onLoadDemoData,
   onClose,
+  t,
 }) => {
   const browserLocale = navigator.language;
-  const browserLabel = `Browser default (${browserLocale})`;
+  const browserLabel = `${t.browserDefault} (${browserLocale})`;
 
   return (
     <div className="settings-form">
       <div className="form-group">
-        <label>Calendar Language</label>
+        <label>{t.languageLabel} (Language)</label>
         <select value={locale} onChange={e => onLocaleChange(e.target.value)}>
           <option value={browserLocale}>{browserLabel}</option>
           {LOCALES.filter(l => l.code !== browserLocale).map(l => (
             <option key={l.code} value={l.code}>{l.label}</option>
           ))}
         </select>
-        <span className="settings-hint">Affects month and weekday names on the calendar.</span>
+        <span className="settings-hint">{t.languageHint}</span>
       </div>
 
       <div className="form-group">
-        <label>Column Alignment</label>
+        <label>{t.columnAlignment}</label>
         <div className="settings-radio-group">
           <label className="settings-radio-item">
             <input
@@ -62,8 +64,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               checked={!weekdayAlign}
               onChange={() => onWeekdayAlignChange(false)}
             />
-            <span>1st of month</span>
-            <span className="settings-hint">Each row starts at day 1.</span>
+            <span>{t.firstOfMonth}</span>
+            <span className="settings-hint">{t.firstOfMonthHint}</span>
           </label>
           <label className="settings-radio-item">
             <input
@@ -72,8 +74,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               checked={weekdayAlign}
               onChange={() => onWeekdayAlignChange(true)}
             />
-            <span>Weekday</span>
-            <span className="settings-hint">Columns align by weekday across all months.</span>
+            <span>{t.weekday}</span>
+            <span className="settings-hint">{t.weekdayHint}</span>
           </label>
         </div>
       </div>
@@ -85,20 +87,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             checked={showWeekNumbers}
             onChange={e => onShowWeekNumbersChange(e.target.checked)}
           />
-          <span>Show week numbers</span>
+          <span>{t.showWeekNumbers}</span>
         </label>
-        <span className="settings-hint">ISO 8601 — displayed on the first day of each week.</span>
+        <span className="settings-hint">{t.weekNumbersHint}</span>
       </div>
 
       <div className="settings-demo-section">
         <button type="button" className="demo-btn" onClick={onLoadDemoData}>
-          Load Demo Data
+          {t.loadDemoData}
         </button>
-        <span className="settings-hint">Replaces all current events and categories with sample data.</span>
+        <span className="settings-hint">{t.demoDataHint}</span>
       </div>
 
       <div className="form-actions">
-        <button type="button" className="primary-btn" onClick={onClose}>Done</button>
+        <button type="button" className="primary-btn" onClick={onClose}>{t.done}</button>
       </div>
     </div>
   );

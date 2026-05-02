@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { type Category, type CalendarEvent } from '../types';
+import type { Translations } from '../i18n';
 
 interface EventFormProps {
   categories: Category[];
@@ -8,6 +9,7 @@ interface EventFormProps {
   onDelete?: () => void;
   initialEvent?: CalendarEvent;
   initialDate?: string;
+  t: Translations;
 }
 
 const toDateString = (date: Date): string => {
@@ -24,6 +26,7 @@ const EventForm: React.FC<EventFormProps> = ({
   onDelete,
   initialEvent,
   initialDate,
+  t,
 }) => {
   const defaultDate = initialDate ?? toDateString(new Date());
 
@@ -50,19 +53,19 @@ const EventForm: React.FC<EventFormProps> = ({
   return (
     <form className="event-form" onSubmit={handleSubmit}>
       <div className="form-group">
-        <label>Event Name</label>
+        <label>{t.eventName}</label>
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
           required
-          placeholder="e.g. Vacation"
+          placeholder={t.eventNamePlaceholder}
           autoFocus
         />
       </div>
       <div className="form-row">
         <div className="form-group">
-          <label>Start Date</label>
+          <label>{t.startDate}</label>
           <input
             type="date"
             value={start}
@@ -71,7 +74,7 @@ const EventForm: React.FC<EventFormProps> = ({
           />
         </div>
         <div className="form-group">
-          <label>End Date</label>
+          <label>{t.endDate}</label>
           <input
             type="date"
             value={end}
@@ -82,7 +85,7 @@ const EventForm: React.FC<EventFormProps> = ({
         </div>
       </div>
       <div className="form-group">
-        <label>Category</label>
+        <label>{t.category}</label>
         <div className="category-toggle-group">
           {categories.map(cat => {
             const isSelected = categoryId === cat.id;
@@ -106,12 +109,12 @@ const EventForm: React.FC<EventFormProps> = ({
       <div className="form-actions">
         {isEditing && onDelete && (
           <button type="button" className="delete-btn delete-btn--form" onClick={onDelete}>
-            Delete
+            {t.delete}
           </button>
         )}
-        <button type="button" className="secondary-btn" onClick={onCancel}>Cancel</button>
+        <button type="button" className="secondary-btn" onClick={onCancel}>{t.cancel}</button>
         <button type="submit" className="primary-btn">
-          {isEditing ? 'Update Event' : 'Save Event'}
+          {isEditing ? t.updateEvent : t.saveEvent}
         </button>
       </div>
     </form>

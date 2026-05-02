@@ -3,6 +3,7 @@ import './App.css'
 import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
+import { getTranslations } from './i18n';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
 import CategoryForm from './components/CategoryForm';
@@ -28,6 +29,7 @@ function App() {
 
   const weekStart = useMemo(() => getWeekStart(locale), [locale]);
   const yearData = useMemo(() => generateYearData(currentYear, locale), [currentYear, locale]);
+  const t = useMemo(() => getTranslations(locale), [locale]);
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('moredan_categories');
@@ -228,23 +230,23 @@ function App() {
               className="category-bulk-btn"
               onClick={() => setVisibleCategories(new Set(categories.map(c => c.id)))}
             >
-              All
+              {t.all}
             </button>
             <button
               type="button"
               className="category-bulk-btn"
               onClick={() => setVisibleCategories(new Set())}
             >
-              None
+              {t.none}
             </button>
           </div>
         </div>
 
         <div className="controls">
-          <button className="primary-btn" onClick={() => openAddEvent()}>Add Event</button>
-          <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>Categories</button>
-          <button className="secondary-btn" onClick={handleExportCSV}>Export CSV</button>
-          <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title="Settings">⚙</button>
+          <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
+          <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
+          <button className="secondary-btn" onClick={handleExportCSV}>{t.exportCsv}</button>
+          <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title={t.settings}>⚙</button>
         </div>
       </header>
 
@@ -350,7 +352,7 @@ function App() {
       <Modal
         isOpen={isEventModalOpen}
         onClose={closeEventModal}
-        title={editingEvent ? 'Edit Event' : 'Add Event'}
+        title={editingEvent ? t.editEvent : t.addEvent}
       >
         <EventForm
           categories={categories}
@@ -359,13 +361,14 @@ function App() {
           onDelete={editingEvent ? () => handleDeleteEvent(editingEvent.id) : undefined}
           initialEvent={editingEvent ?? undefined}
           initialDate={prefillDate ?? undefined}
+          t={t}
         />
       </Modal>
 
       <Modal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
-        title="Settings"
+        title={t.settings}
       >
         <SettingsModal
           locale={locale}
@@ -376,19 +379,21 @@ function App() {
           onShowWeekNumbersChange={setShowWeekNumbers}
           onLoadDemoData={handleLoadDemoData}
           onClose={() => setIsSettingsModalOpen(false)}
+          t={t}
         />
       </Modal>
 
       <Modal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
-        title="Manage Categories"
+        title={t.manageCategories}
       >
         <CategoryForm
           categories={categories}
           onAdd={handleAddCategory}
           onDelete={handleDeleteCategory}
           onCancel={() => setIsCategoryModalOpen(false)}
+          t={t}
         />
       </Modal>
     </div>
