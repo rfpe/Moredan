@@ -83,11 +83,25 @@ const EventForm: React.FC<EventFormProps> = ({
       </div>
       <div className="form-group">
         <label>Category</label>
-        <select value={categoryId} onChange={e => setCategoryId(e.target.value)} required>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+        <div className="category-toggle-group">
+          {categories.map(cat => {
+            const isSelected = categoryId === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                className={`category-toggle-btn${isSelected ? ' selected' : ''}`}
+                style={isSelected
+                  ? { backgroundColor: cat.color, borderColor: cat.color, color: '#fff' }
+                  : { borderColor: cat.color, color: cat.color }
+                }
+                onClick={() => setCategoryId(cat.id)}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
       <div className="form-actions">
         {isEditing && onDelete && (
