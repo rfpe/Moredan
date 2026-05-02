@@ -33,6 +33,7 @@
 - [x] **Misalignment (two issues):**
   - [x] Fix 1: Visual uniformity — render 31 filler cells for short months so every row has the same visual width
   - [x] Fix 2: Stacking sync — multi-month events get globally consistent rowOffset so snaking nubs connect at the same height
+- [x] **Event bar sub-pixel spill.** Bars bled into adjacent day columns at 100%+ zoom. Root cause: `.event-row-overlay` created a second independent CSS Grid; fractional `1fr` column widths rounded differently across the two grids. Fix: removed the overlay wrapper; event bars are now `position:absolute` direct children of `.month-row` with explicit `grid-column`/`grid-row`. Per CSS Grid spec, their containing block is the grid area — same column lines as day cells, no independent rounding possible. Confirmed via PoC (`sample/poc_grid_alignment.html`).
 
 ## Pending Decisions
 - [ ] None.
