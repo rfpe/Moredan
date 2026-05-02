@@ -49,6 +49,7 @@ export const generateYearData = (year: number, locale: string = 'default') => {
       days.push({
         dayNumber: d,
         weekday: date.toLocaleString(locale, { weekday: 'short' }),
+        weekdayNarrow: date.toLocaleString(locale, { weekday: 'narrow' }),
         isWeekend: dayOfWeek === 0 || dayOfWeek === 6
       });
     }
