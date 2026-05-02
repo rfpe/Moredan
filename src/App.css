@@ -335,24 +335,14 @@
   text-transform: capitalize;
 }
 
-/* Event Spans Container */
-.event-row-overlay {
+.event-bar {
+  /* Absolutely positioned within its grid area (CSS Grid spec §10).
+     grid-column / grid-row are set inline; containing block = that grid area,
+     which shares the exact same column lines as the day cells — no second grid,
+     no independent sub-pixel rounding. */
   position: absolute;
-  top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  display: grid;
-  grid-template-columns: 60px repeat(31, 1fr);
-  pointer-events: none;
-}
-
-.month-row--weekday .event-row-overlay {
-  grid-template-columns: 60px repeat(42, 1fr);
-}
-
-.event-bar {
-  pointer-events: auto;
   height: 18px;
   border-radius: 4px;
   font-size: 0.65rem;
@@ -364,7 +354,6 @@
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   transition: transform 0.1s;
   border: 1px solid rgba(0,0,0,0.1);
-  position: relative;
   overflow: visible;
 }
 

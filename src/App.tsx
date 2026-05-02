@@ -328,41 +328,38 @@ function App() {
                 <div key={`filler-${i}`} className="day-cell day-cell--filler" />
               ))}
 
-              {/* Event Spans */}
-              <div className="event-row-overlay">
-                {monthSpans.map((span) => {
-                  const event = events.find(e => e.id === span.eventId);
-                  const category = categories.find(c => c.id === event?.categoryId);
+              {/* Event Spans — abs-pos direct grid children; containing block = grid area */}
+              {monthSpans.map((span) => {
+                const event = events.find(e => e.id === span.eventId);
+                const category = categories.find(c => c.id === event?.categoryId);
 
-                  return (
-                    <div
-                      key={`${month.index}-${span.eventId}`}
-                      className="event-bar"
-                      style={{
-                        gridColumnStart: span.startColumn,
-                        gridColumnEnd: span.endColumn,
-                        top: `${20 + span.rowOffset * 22}px`,
-                        backgroundColor: category?.color,
-                        position: 'relative',
-                        gridRow: 1
-                      }}
-                      title={event?.name}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (event) openEditEvent(event);
-                      }}
-                    >
-                      <span className="event-title">{event?.name}</span>
-                      {span.isEndContinuation && (
-                        <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
-                      )}
-                      {span.isStartContinuation && (
-                        <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                return (
+                  <div
+                    key={`${month.index}-${span.eventId}`}
+                    className="event-bar"
+                    style={{
+                      gridColumnStart: span.startColumn,
+                      gridColumnEnd: span.endColumn,
+                      gridRow: 1,
+                      top: `${20 + span.rowOffset * 22}px`,
+                      backgroundColor: category?.color,
+                    }}
+                    title={event?.name}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (event) openEditEvent(event);
+                    }}
+                  >
+                    <span className="event-title">{event?.name}</span>
+                    {span.isEndContinuation && (
+                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                    )}
+                    {span.isStartContinuation && (
+                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         })}

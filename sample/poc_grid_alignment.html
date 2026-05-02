@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PoC: Grid Alignment</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    h2 { margin: 2rem 0 0.25rem; font-size: 1rem; color: #1e293b; }
+    p  { margin: 0 0 0.75rem; font-size: 0.8rem; color: #64748b; }
+
+    /* ── Shared month-row shell ── */
+    .month-row {
+      display: grid;
+      grid-template-columns: 60px repeat(31, 1fr);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 0.5rem;
+      min-height: 60px;
+      position: relative;
+    }
+    .month-label {
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      border-right: 1px solid #e2e8f0;
+    }
+    .day-cell {
+      background: white;
+      border-right: 1px solid #e2e8f0;
+      padding: 2px 4px;
+      font-size: 0.65rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .day-cell.weekend { background: #f1f5f9; }
+    .highlight { background: #fef9c3 !important; }
+
+    /* ── Approach A: position:absolute overlay with its own grid ── */
+    .event-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: grid;
+      grid-template-columns: 60px repeat(31, 1fr);
+      pointer-events: none;
+    }
+    .event-bar-a {
+      height: 18px;
+      border-radius: 4px;
+      background: #3b82f6;
+      border: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+      top: 28px;
+      grid-row: 1;
+      color: white;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      overflow: visible;
+      white-space: nowrap;
+    }
+
+    /* ── Approach B (v1, broken): position:relative direct child — takes flow space ── */
+    /* Kept as a reference for what NOT to do. */
+
+    /* ── Approach C: position:absolute direct child of month-row grid ──
+       CSS Grid spec §10: an absolutely-positioned grid item with explicit
+       grid-column / grid-row uses that grid area as its containing block.
+       No second grid → no independent rounding of column boundaries.       */
+    .event-bar-c {
+      position: absolute;       /* out of flow — does not push day cells */
+      grid-column: 1;           /* overridden inline per event */
+      grid-row: 1;
+      top: 28px;
+      left: 0;
+      right: 0;
+      height: 18px;
+      border-radius: 4px;
+      background: #10b981;
+      border: 1px solid rgba(0,0,0,0.1);
+      color: white;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      overflow: visible;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 style="margin:0 0 0.25rem;font-size:1.25rem">Grid Alignment PoC — Round 2</h1>
+  <p style="margin:0 0 0.25rem;font-size:0.85rem;color:#475569">
+    Single-day event on <strong>day 20</strong> (yellow highlight). Check edges at 100 %, 110 %, 125 %, 150 % zoom.
+  </p>
+  <p style="margin:0 0 1.5rem;font-size:0.8rem;color:#94a3b8">
+    Round 1 finding: Approach A did not spill → two-grid concept is not inherently broken.<br>
+    Approach B (position:relative) was broken because it took up flow space, pushing day 31 off screen.<br>
+    This round tests <strong>Approach C</strong>: position:absolute direct child, which uses the parent grid area as its containing block.
+  </p>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>Approach A — Two grids (current app implementation)</h2>
+  <p>
+    Overlay <code>div</code> with its own <code>display:grid</code> / same column template,
+    <code>position:absolute</code> over the month row. Round 1 showed no spill in the PoC.
+    Re-testing here as baseline.
+  </p>
+  <div class="month-row" id="row-a">
+    <div class="month-label">JAN</div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>Approach C — Absolutely-positioned direct grid child (no overlay grid)</h2>
+  <p>
+    Event bar is a direct child of <code>.month-row</code> with
+    <code>position:absolute</code> + explicit <code>grid-column</code> / <code>grid-row</code>.
+    Per CSS Grid spec, the containing block becomes the grid area at those lines —
+    the same lines as the day cell in the same grid. No second grid, no independent rounding.
+  </p>
+  <div class="month-row" id="row-c">
+    <div class="month-label">JAN</div>
+  </div>
+
+  <script>
+    const DAYS      = 31;
+    const EVENT_DAY = 20;           // 1-based
+    const colStart  = EVENT_DAY + 1; // grid column start (col 1 = label)
+    const colEnd    = EVENT_DAY + 2; // grid column end (exclusive)
+
+    function makeDayCells(container) {
+      for (let d = 1; d <= DAYS; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        const dow = (4 + d - 1) % 7; // Jan 2026 day 1 = Thu(4)
+        if (dow === 0 || dow === 6) cell.classList.add('weekend');
+        if (d === EVENT_DAY)        cell.classList.add('highlight');
+        cell.textContent = d;
+        container.appendChild(cell);
+      }
+    }
+
+    /* ── Row A: overlay grid ── */
+    const rowA = document.getElementById('row-a');
+    makeDayCells(rowA);
+    const overlay = document.createElement('div');
+    overlay.className = 'event-overlay';
+    const barA = document.createElement('div');
+    barA.className = 'event-bar-a';
+    barA.style.gridColumnStart = colStart;
+    barA.style.gridColumnEnd   = colEnd;
+    barA.textContent = 'Event A (overlay grid)';
+    overlay.appendChild(barA);
+    rowA.appendChild(overlay);
+
+    /* ── Row C: absolutely-positioned direct grid child ── */
+    const rowC = document.getElementById('row-c');
+    makeDayCells(rowC);
+    const barC = document.createElement('div');
+    barC.className = 'event-bar-c';
+    barC.style.gridColumnStart = colStart;
+    barC.style.gridColumnEnd   = colEnd;
+    // left:0 / right:0 / top already set in CSS; containing block = grid area
+    barC.textContent = 'Event C (abs grid child)';
+    rowC.appendChild(barC);
+  </script>
+</body>
+</html>
