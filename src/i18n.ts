@@ -39,6 +39,8 @@ export interface Translations {
   weekNumbersHint: string;
   loadDemoData: string;
   demoDataHint: string;
+  clearData: string;
+  clearDataHint: string;
   done: string;
 }
 
@@ -54,7 +56,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Column Alignment', firstOfMonth: '1st of month', firstOfMonthHint: 'Each row starts at day 1.',
     weekday: 'Weekday', weekdayHint: 'Columns align by weekday across all months.',
     showWeekNumbers: 'Show week numbers', weekNumbersHint: 'ISO 8601 — displayed on the first day of each week.',
-    loadDemoData: 'Load Demo Data', demoDataHint: 'Replaces all current events and categories with sample data.', done: 'Done',
+    loadDemoData: 'Load Demo Data', demoDataHint: 'Replaces all current events and categories with sample data.',
+    clearData: 'Clear All Data', clearDataHint: 'Permanently removes all events and resets categories to defaults.', done: 'Done',
   },
   'fr-FR': {
     all: 'Tout', none: 'Aucun', addEvent: 'Ajouter un événement', categories: 'Catégories', exportCsv: 'Exporter CSV', settings: 'Paramètres',
@@ -67,7 +70,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Alignement des colonnes', firstOfMonth: '1er du mois', firstOfMonthHint: 'Chaque ligne commence au jour 1.',
     weekday: 'Jour de la semaine', weekdayHint: "Les colonnes s'alignent par jour de la semaine.",
     showWeekNumbers: 'Afficher les numéros de semaine', weekNumbersHint: 'ISO 8601 — affiché le premier jour de chaque semaine.',
-    loadDemoData: 'Charger les données de démo', demoDataHint: 'Remplace tous les événements et catégories par des données exemples.', done: 'Terminé',
+    loadDemoData: 'Charger les données de démo', demoDataHint: 'Remplace tous les événements et catégories par des données exemples.',
+    clearData: 'Effacer toutes les données', clearDataHint: 'Supprime définitivement tous les événements et réinitialise les catégories.', done: 'Terminé',
   },
   'de-DE': {
     all: 'Alle', none: 'Keine', addEvent: 'Ereignis hinzufügen', categories: 'Kategorien', exportCsv: 'CSV exportieren', settings: 'Einstellungen',
@@ -80,7 +84,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Spaltenausrichtung', firstOfMonth: '1. des Monats', firstOfMonthHint: 'Jede Zeile beginnt an Tag 1.',
     weekday: 'Wochentag', weekdayHint: 'Spalten werden nach Wochentag über alle Monate ausgerichtet.',
     showWeekNumbers: 'Wochennummern anzeigen', weekNumbersHint: 'ISO 8601 — am ersten Tag jeder Woche angezeigt.',
-    loadDemoData: 'Demodaten laden', demoDataHint: 'Ersetzt alle aktuellen Ereignisse und Kategorien durch Beispieldaten.', done: 'Fertig',
+    loadDemoData: 'Demodaten laden', demoDataHint: 'Ersetzt alle aktuellen Ereignisse und Kategorien durch Beispieldaten.',
+    clearData: 'Alle Daten löschen', clearDataHint: 'Löscht alle Ereignisse dauerhaft und setzt die Kategorien zurück.', done: 'Fertig',
   },
   'es-ES': {
     all: 'Todos', none: 'Ninguno', addEvent: 'Agregar evento', categories: 'Categorías', exportCsv: 'Exportar CSV', settings: 'Configuración',
@@ -93,7 +98,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Alineación de columnas', firstOfMonth: 'Día 1 del mes', firstOfMonthHint: 'Cada fila comienza en el día 1.',
     weekday: 'Día de la semana', weekdayHint: 'Las columnas se alinean por día de la semana en todos los meses.',
     showWeekNumbers: 'Mostrar números de semana', weekNumbersHint: 'ISO 8601 — mostrado el primer día de cada semana.',
-    loadDemoData: 'Cargar datos de demostración', demoDataHint: 'Reemplaza todos los eventos y categorías con datos de muestra.', done: 'Listo',
+    loadDemoData: 'Cargar datos de demostración', demoDataHint: 'Reemplaza todos los eventos y categorías con datos de muestra.',
+    clearData: 'Borrar todos los datos', clearDataHint: 'Elimina permanentemente todos los eventos y restablece las categorías.', done: 'Listo',
   },
   'pt-BR': {
     all: 'Todos', none: 'Nenhum', addEvent: 'Adicionar evento', categories: 'Categorias', exportCsv: 'Exportar CSV', settings: 'Configurações',
@@ -106,7 +112,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Alinhamento de colunas', firstOfMonth: 'Dia 1 do mês', firstOfMonthHint: 'Cada linha começa no dia 1.',
     weekday: 'Dia da semana', weekdayHint: 'Colunas alinhadas por dia da semana em todos os meses.',
     showWeekNumbers: 'Mostrar números de semana', weekNumbersHint: 'ISO 8601 — exibido no primeiro dia de cada semana.',
-    loadDemoData: 'Carregar dados de demonstração', demoDataHint: 'Substitui todos os eventos e categorias por dados de exemplo.', done: 'Concluído',
+    loadDemoData: 'Carregar dados de demonstração', demoDataHint: 'Substitui todos os eventos e categorias por dados de exemplo.',
+    clearData: 'Limpar todos os dados', clearDataHint: 'Remove permanentemente todos os eventos e redefine as categorias.', done: 'Concluído',
   },
   'it-IT': {
     all: 'Tutti', none: 'Nessuno', addEvent: 'Aggiungi evento', categories: 'Categorie', exportCsv: 'Esporta CSV', settings: 'Impostazioni',
@@ -119,7 +126,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Allineamento colonne', firstOfMonth: '1° del mese', firstOfMonthHint: 'Ogni riga inizia dal giorno 1.',
     weekday: 'Giorno della settimana', weekdayHint: 'Le colonne si allineano per giorno della settimana in tutti i mesi.',
     showWeekNumbers: 'Mostra numeri settimana', weekNumbersHint: 'ISO 8601 — mostrato il primo giorno di ogni settimana.',
-    loadDemoData: 'Carica dati demo', demoDataHint: 'Sostituisce tutti gli eventi e le categorie con dati di esempio.', done: 'Fatto',
+    loadDemoData: 'Carica dati demo', demoDataHint: 'Sostituisce tutti gli eventi e le categorie con dati di esempio.',
+    clearData: 'Cancella tutti i dati', clearDataHint: 'Rimuove definitivamente tutti gli eventi e reimposta le categorie.', done: 'Fatto',
   },
   'nl-NL': {
     all: 'Alles', none: 'Geen', addEvent: 'Evenement toevoegen', categories: 'Categorieën', exportCsv: 'CSV exporteren', settings: 'Instellingen',
@@ -132,7 +140,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Kolomuitlijning', firstOfMonth: '1e van de maand', firstOfMonthHint: 'Elke rij begint op dag 1.',
     weekday: 'Weekdag', weekdayHint: 'Kolommen worden uitgelijnd op weekdag voor alle maanden.',
     showWeekNumbers: 'Weeknummers tonen', weekNumbersHint: 'ISO 8601 — weergegeven op de eerste dag van elke week.',
-    loadDemoData: 'Demogegevens laden', demoDataHint: 'Vervangt alle huidige evenementen en categorieën door voorbeeldgegevens.', done: 'Klaar',
+    loadDemoData: 'Demogegevens laden', demoDataHint: 'Vervangt alle huidige evenementen en categorieën door voorbeeldgegevens.',
+    clearData: 'Alle gegevens wissen', clearDataHint: 'Verwijdert alle evenementen definitief en herstelt de categorieën.', done: 'Klaar',
   },
   'ru-RU': {
     all: 'Все', none: 'Нет', addEvent: 'Добавить событие', categories: 'Категории', exportCsv: 'Экспорт CSV', settings: 'Настройки',
@@ -145,7 +154,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: 'Выравнивание столбцов', firstOfMonth: '1-й день месяца', firstOfMonthHint: 'Каждая строка начинается с 1-го дня.',
     weekday: 'День недели', weekdayHint: 'Столбцы выровнены по дням недели для всех месяцев.',
     showWeekNumbers: 'Показывать номера недель', weekNumbersHint: 'ISO 8601 — отображается в первый день каждой недели.',
-    loadDemoData: 'Загрузить демо-данные', demoDataHint: 'Заменяет все события и категории примерами данных.', done: 'Готово',
+    loadDemoData: 'Загрузить демо-данные', demoDataHint: 'Заменяет все события и категории примерами данных.',
+    clearData: 'Очистить все данные', clearDataHint: 'Безвозвратно удаляет все события и сбрасывает категории.', done: 'Готово',
   },
   'ja-JP': {
     all: 'すべて', none: 'なし', addEvent: 'イベントを追加', categories: 'カテゴリ', exportCsv: 'CSVエクスポート', settings: '設定',
@@ -158,7 +168,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: '列の配置', firstOfMonth: '月の1日', firstOfMonthHint: '各行は1日から始まります。',
     weekday: '曜日', weekdayHint: 'すべての月で曜日に合わせて列が配置されます。',
     showWeekNumbers: '週番号を表示', weekNumbersHint: 'ISO 8601 — 各週の最初の日に表示。',
-    loadDemoData: 'デモデータを読み込む', demoDataHint: 'すべてのイベントとカテゴリをサンプルデータに置き換えます。', done: '完了',
+    loadDemoData: 'デモデータを読み込む', demoDataHint: 'すべてのイベントとカテゴリをサンプルデータに置き換えます。',
+    clearData: 'すべてのデータを削除', clearDataHint: 'すべてのイベントを完全に削除し、カテゴリをデフォルトにリセットします。', done: '完了',
   },
   'zh-CN': {
     all: '全部', none: '无', addEvent: '添加事件', categories: '分类', exportCsv: '导出CSV', settings: '设置',
@@ -171,7 +182,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: '列对齐', firstOfMonth: '每月第1天', firstOfMonthHint: '每行从第1天开始。',
     weekday: '星期', weekdayHint: '所有月份按星期对齐列。',
     showWeekNumbers: '显示周数', weekNumbersHint: 'ISO 8601 — 显示在每周第一天。',
-    loadDemoData: '加载演示数据', demoDataHint: '用示例数据替换所有事件和分类。', done: '完成',
+    loadDemoData: '加载演示数据', demoDataHint: '用示例数据替换所有事件和分类。',
+    clearData: '清除所有数据', clearDataHint: '永久删除所有事件并将分类重置为默认值。', done: '完成',
   },
   'ko-KR': {
     all: '전체', none: '없음', addEvent: '이벤트 추가', categories: '카테고리', exportCsv: 'CSV 내보내기', settings: '설정',
@@ -184,7 +196,8 @@ const translations: Record<string, Translations> = {
     columnAlignment: '열 정렬', firstOfMonth: '매월 1일', firstOfMonthHint: '각 행은 1일부터 시작합니다.',
     weekday: '요일', weekdayHint: '모든 월에서 요일별로 열이 정렬됩니다.',
     showWeekNumbers: '주 번호 표시', weekNumbersHint: 'ISO 8601 — 각 주의 첫 날에 표시됩니다.',
-    loadDemoData: '데모 데이터 불러오기', demoDataHint: '모든 이벤트와 카테고리를 샘플 데이터로 교체합니다.', done: '완료',
+    loadDemoData: '데모 데이터 불러오기', demoDataHint: '모든 이벤트와 카테고리를 샘플 데이터로 교체합니다.',
+    clearData: '모든 데이터 지우기', clearDataHint: '모든 이벤트를 영구적으로 삭제하고 카테고리를 기본값으로 재설정합니다.', done: '완료',
   },
 };
 
