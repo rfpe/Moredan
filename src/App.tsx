@@ -141,28 +141,6 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
-  const handleExportCSV = () => {
-    const header = ['Name', 'Start Date', 'End Date', 'Category', 'Color'];
-    const rows = events.map(e => {
-      const cat = categories.find(c => c.id === e.categoryId);
-      return [
-        `"${e.name.replace(/"/g, '""')}"`,
-        e.start.toISOString().split('T')[0],
-        e.end.toISOString().split('T')[0],
-        `"${(cat?.name ?? '').replace(/"/g, '""')}"`,
-        cat?.color ?? '',
-      ].join(',');
-    });
-    const csv = [header.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `moredan-${currentYear}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const handleExportXLSX = async () => {
     const ExcelJS = (await import('exceljs')).default;
     const wb = new ExcelJS.Workbook();
@@ -415,7 +393,6 @@ function App() {
         <div className="controls">
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
-          <button className="secondary-btn" onClick={handleExportCSV}>{t.exportCsv}</button>
           <button className="secondary-btn" onClick={handleExportXLSX}>{t.exportXlsx}</button>
           <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title={t.settings}>⚙</button>
         </div>

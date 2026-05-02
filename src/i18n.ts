@@ -4,7 +4,6 @@ export interface Translations {
   none: string;
   addEvent: string;
   categories: string;
-  exportCsv: string;
   exportXlsx: string;
   settings: string;
   // Modal titles
@@ -47,7 +46,7 @@ export interface Translations {
 
 const translations: Record<string, Translations> = {
   'en-US': {
-    all: 'All', none: 'None', addEvent: 'Add Event', categories: 'Categories', exportCsv: 'Export CSV', exportXlsx: 'Export Excel', settings: 'Settings',
+    all: 'All', none: 'None', addEvent: 'Add Event', categories: 'Categories', exportXlsx: 'Export Excel', settings: 'Settings',
     editEvent: 'Edit Event', manageCategories: 'Manage Categories',
     eventName: 'Event Name', eventNamePlaceholder: 'e.g. Vacation', startDate: 'Start Date', endDate: 'End Date',
     category: 'Category', delete: 'Delete', cancel: 'Cancel', updateEvent: 'Update Event', saveEvent: 'Save Event',
@@ -61,7 +60,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Clear All Data', clearDataHint: 'Permanently removes all events and resets categories to defaults.', done: 'Done',
   },
   'fr-FR': {
-    all: 'Tout', none: 'Aucun', addEvent: 'Ajouter un événement', categories: 'Catégories', exportCsv: 'Exporter CSV', exportXlsx: 'Exporter Excel', settings: 'Paramètres',
+    all: 'Tout', none: 'Aucun', addEvent: 'Ajouter un événement', categories: 'Catégories', exportXlsx: 'Exporter Excel', settings: 'Paramètres',
     editEvent: "Modifier l'événement", manageCategories: 'Gérer les catégories',
     eventName: "Nom de l'événement", eventNamePlaceholder: 'ex. Vacances', startDate: 'Date de début', endDate: 'Date de fin',
     category: 'Catégorie', delete: 'Supprimer', cancel: 'Annuler', updateEvent: 'Mettre à jour', saveEvent: 'Enregistrer',
@@ -75,7 +74,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Effacer toutes les données', clearDataHint: 'Supprime définitivement tous les événements et réinitialise les catégories.', done: 'Terminé',
   },
   'de-DE': {
-    all: 'Alle', none: 'Keine', addEvent: 'Ereignis hinzufügen', categories: 'Kategorien', exportCsv: 'CSV exportieren', exportXlsx: 'Excel exportieren', settings: 'Einstellungen',
+    all: 'Alle', none: 'Keine', addEvent: 'Ereignis hinzufügen', categories: 'Kategorien', exportXlsx: 'Excel exportieren', settings: 'Einstellungen',
     editEvent: 'Ereignis bearbeiten', manageCategories: 'Kategorien verwalten',
     eventName: 'Ereignisname', eventNamePlaceholder: 'z.B. Urlaub', startDate: 'Startdatum', endDate: 'Enddatum',
     category: 'Kategorie', delete: 'Löschen', cancel: 'Abbrechen', updateEvent: 'Aktualisieren', saveEvent: 'Speichern',
@@ -89,7 +88,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Alle Daten löschen', clearDataHint: 'Löscht alle Ereignisse dauerhaft und setzt die Kategorien zurück.', done: 'Fertig',
   },
   'es-ES': {
-    all: 'Todos', none: 'Ninguno', addEvent: 'Agregar evento', categories: 'Categorías', exportCsv: 'Exportar CSV', exportXlsx: 'Exportar Excel', settings: 'Configuración',
+    all: 'Todos', none: 'Ninguno', addEvent: 'Agregar evento', categories: 'Categorías', exportXlsx: 'Exportar Excel', settings: 'Configuración',
     editEvent: 'Editar evento', manageCategories: 'Gestionar categorías',
     eventName: 'Nombre del evento', eventNamePlaceholder: 'ej. Vacaciones', startDate: 'Fecha de inicio', endDate: 'Fecha de fin',
     category: 'Categoría', delete: 'Eliminar', cancel: 'Cancelar', updateEvent: 'Actualizar evento', saveEvent: 'Guardar evento',
@@ -103,7 +102,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Borrar todos los datos', clearDataHint: 'Elimina permanentemente todos los eventos y restablece las categorías.', done: 'Listo',
   },
   'pt-BR': {
-    all: 'Todos', none: 'Nenhum', addEvent: 'Adicionar evento', categories: 'Categorias', exportCsv: 'Exportar CSV', exportXlsx: 'Exportar Excel', settings: 'Configurações',
+    all: 'Todos', none: 'Nenhum', addEvent: 'Adicionar evento', categories: 'Categorias', exportXlsx: 'Exportar Excel', settings: 'Configurações',
     editEvent: 'Editar evento', manageCategories: 'Gerenciar categorias',
     eventName: 'Nome do evento', eventNamePlaceholder: 'ex. Férias', startDate: 'Data de início', endDate: 'Data de fim',
     category: 'Categoria', delete: 'Excluir', cancel: 'Cancelar', updateEvent: 'Atualizar evento', saveEvent: 'Salvar evento',
@@ -117,7 +116,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Limpar todos os dados', clearDataHint: 'Remove permanentemente todos os eventos e redefine as categorias.', done: 'Concluído',
   },
   'it-IT': {
-    all: 'Tutti', none: 'Nessuno', addEvent: 'Aggiungi evento', categories: 'Categorie', exportCsv: 'Esporta CSV', exportXlsx: 'Esporta Excel', settings: 'Impostazioni',
+    all: 'Tutti', none: 'Nessuno', addEvent: 'Aggiungi evento', categories: 'Categorie', exportXlsx: 'Esporta Excel', settings: 'Impostazioni',
     editEvent: 'Modifica evento', manageCategories: 'Gestisci categorie',
     eventName: 'Nome evento', eventNamePlaceholder: 'es. Vacanza', startDate: 'Data inizio', endDate: 'Data fine',
     category: 'Categoria', delete: 'Elimina', cancel: 'Annulla', updateEvent: 'Aggiorna evento', saveEvent: 'Salva evento',
@@ -131,7 +130,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Cancella tutti i dati', clearDataHint: 'Rimuove definitivamente tutti gli eventi e reimposta le categorie.', done: 'Fatto',
   },
   'nl-NL': {
-    all: 'Alles', none: 'Geen', addEvent: 'Evenement toevoegen', categories: 'Categorieën', exportCsv: 'CSV exporteren', exportXlsx: 'Excel exporteren', settings: 'Instellingen',
+    all: 'Alles', none: 'Geen', addEvent: 'Evenement toevoegen', categories: 'Categorieën', exportXlsx: 'Excel exporteren', settings: 'Instellingen',
     editEvent: 'Evenement bewerken', manageCategories: 'Categorieën beheren',
     eventName: 'Naam evenement', eventNamePlaceholder: 'bijv. Vakantie', startDate: 'Startdatum', endDate: 'Einddatum',
     category: 'Categorie', delete: 'Verwijderen', cancel: 'Annuleren', updateEvent: 'Evenement bijwerken', saveEvent: 'Evenement opslaan',
@@ -145,7 +144,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Alle gegevens wissen', clearDataHint: 'Verwijdert alle evenementen definitief en herstelt de categorieën.', done: 'Klaar',
   },
   'ru-RU': {
-    all: 'Все', none: 'Нет', addEvent: 'Добавить событие', categories: 'Категории', exportCsv: 'Экспорт CSV', exportXlsx: 'Экспорт Excel', settings: 'Настройки',
+    all: 'Все', none: 'Нет', addEvent: 'Добавить событие', categories: 'Категории', exportXlsx: 'Экспорт Excel', settings: 'Настройки',
     editEvent: 'Изменить событие', manageCategories: 'Управление категориями',
     eventName: 'Название события', eventNamePlaceholder: 'напр. Отпуск', startDate: 'Дата начала', endDate: 'Дата окончания',
     category: 'Категория', delete: 'Удалить', cancel: 'Отмена', updateEvent: 'Обновить событие', saveEvent: 'Сохранить событие',
@@ -159,7 +158,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Очистить все данные', clearDataHint: 'Безвозвратно удаляет все события и сбрасывает категории.', done: 'Готово',
   },
   'ja-JP': {
-    all: 'すべて', none: 'なし', addEvent: 'イベントを追加', categories: 'カテゴリ', exportCsv: 'CSVエクスポート', exportXlsx: 'Excelエクスポート', settings: '設定',
+    all: 'すべて', none: 'なし', addEvent: 'イベントを追加', categories: 'カテゴリ', exportXlsx: 'Excelエクスポート', settings: '設定',
     editEvent: 'イベントを編集', manageCategories: 'カテゴリ管理',
     eventName: 'イベント名', eventNamePlaceholder: '例：休暇', startDate: '開始日', endDate: '終了日',
     category: 'カテゴリ', delete: '削除', cancel: 'キャンセル', updateEvent: '更新', saveEvent: '保存',
@@ -173,7 +172,7 @@ const translations: Record<string, Translations> = {
     clearData: 'すべてのデータを削除', clearDataHint: 'すべてのイベントを完全に削除し、カテゴリをデフォルトにリセットします。', done: '完了',
   },
   'zh-CN': {
-    all: '全部', none: '无', addEvent: '添加事件', categories: '分类', exportCsv: '导出CSV', exportXlsx: '导出Excel', settings: '设置',
+    all: '全部', none: '无', addEvent: '添加事件', categories: '分类', exportXlsx: '导出Excel', settings: '设置',
     editEvent: '编辑事件', manageCategories: '管理分类',
     eventName: '事件名称', eventNamePlaceholder: '例：假期', startDate: '开始日期', endDate: '结束日期',
     category: '分类', delete: '删除', cancel: '取消', updateEvent: '更新事件', saveEvent: '保存事件',
@@ -187,7 +186,7 @@ const translations: Record<string, Translations> = {
     clearData: '清除所有数据', clearDataHint: '永久删除所有事件并将分类重置为默认值。', done: '完成',
   },
   'ko-KR': {
-    all: '전체', none: '없음', addEvent: '이벤트 추가', categories: '카테고리', exportCsv: 'CSV 내보내기', exportXlsx: 'Excel 내보내기', settings: '설정',
+    all: '전체', none: '없음', addEvent: '이벤트 추가', categories: '카테고리', exportXlsx: 'Excel 내보내기', settings: '설정',
     editEvent: '이벤트 편집', manageCategories: '카테고리 관리',
     eventName: '이벤트 이름', eventNamePlaceholder: '예: 휴가', startDate: '시작일', endDate: '종료일',
     category: '카테고리', delete: '삭제', cancel: '취소', updateEvent: '이벤트 업데이트', saveEvent: '이벤트 저장',
