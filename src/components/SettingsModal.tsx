@@ -9,6 +9,7 @@ interface SettingsModalProps {
   showWeekNumbers: boolean;
   onShowWeekNumbersChange: (value: boolean) => void;
   onLoadDemoData: () => void;
+  onClearData: () => void;
   onClose: () => void;
   t: Translations;
 }
@@ -35,6 +36,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   showWeekNumbers,
   onShowWeekNumbersChange,
   onLoadDemoData,
+  onClearData,
   onClose,
   t,
 }) => {
@@ -97,6 +99,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           {t.loadDemoData}
         </button>
         <span className="settings-hint">{t.demoDataHint}</span>
+      </div>
+
+      <div className="settings-demo-section">
+        <button type="button" className="demo-btn demo-btn--destructive" onClick={onClearData}>
+          {t.clearData}
+        </button>
+        <span className="settings-hint">{t.clearDataHint}</span>
       </div>
 
       <div className="form-actions">

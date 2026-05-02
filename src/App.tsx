@@ -122,6 +122,18 @@ function App() {
     localStorage.setItem('moredan_show_week_numbers', String(showWeekNumbers));
   }, [showWeekNumbers]);
 
+  const handleClearData = () => {
+    if (!window.confirm('Clear all events and reset categories to defaults?')) return;
+    setEvents([]);
+    setCategories([
+      { id: '1', name: 'Work', color: '#3b82f6' },
+      { id: '2', name: 'Personal', color: '#10b981' },
+      { id: '3', name: 'Urgent', color: '#ef4444' },
+    ]);
+    setVisibleCategories(new Set(['1', '2', '3']));
+    setIsSettingsModalOpen(false);
+  };
+
   const handleLoadDemoData = () => {
     setCategories(DEMO_CATEGORIES);
     setEvents(generateDemoEvents(currentYear));
@@ -513,6 +525,7 @@ function App() {
           showWeekNumbers={showWeekNumbers}
           onShowWeekNumbersChange={setShowWeekNumbers}
           onLoadDemoData={handleLoadDemoData}
+          onClearData={handleClearData}
           onClose={() => setIsSettingsModalOpen(false)}
           t={t}
         />

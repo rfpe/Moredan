@@ -200,6 +200,17 @@
   color: #3b82f6;
 }
 
+.demo-btn--destructive {
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+.demo-btn--destructive:hover {
+  border-color: #ef4444;
+  color: #dc2626;
+  background-color: #fef2f2;
+}
+
 .settings-checkbox-item {
   display: flex;
   align-items: center;
