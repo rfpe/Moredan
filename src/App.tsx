@@ -222,6 +222,22 @@ function App() {
               </button>
             );
           })}
+          <div className="category-filter-actions">
+            <button
+              type="button"
+              className="category-bulk-btn"
+              onClick={() => setVisibleCategories(new Set(categories.map(c => c.id)))}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className="category-bulk-btn"
+              onClick={() => setVisibleCategories(new Set())}
+            >
+              None
+            </button>
+          </div>
         </div>
 
         <div className="controls">
