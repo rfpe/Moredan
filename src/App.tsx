@@ -205,17 +205,23 @@ function App() {
         </div>
 
         <div className="category-filters">
-          {categories.map(cat => (
-            <label key={cat.id} className="category-filter-item">
-              <input
-                type="checkbox"
-                checked={visibleCategories.has(cat.id)}
-                onChange={() => toggleCategory(cat.id)}
-              />
-              <span className="color-dot" style={{ backgroundColor: cat.color }}></span>
-              {cat.name}
-            </label>
-          ))}
+          {categories.map(cat => {
+            const isActive = visibleCategories.has(cat.id);
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                className={`category-filter-btn${isActive ? ' active' : ''}`}
+                style={isActive
+                  ? { backgroundColor: cat.color, borderColor: cat.color, color: '#fff' }
+                  : { borderColor: cat.color, color: cat.color }
+                }
+                onClick={() => toggleCategory(cat.id)}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
         </div>
 
         <div className="controls">
