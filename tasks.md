@@ -29,8 +29,7 @@
 - [ ] White-labeling (custom branding, logo, theme colors, fonts, default categories)
 - [ ] Advanced "S-curve" snaking connectors (replaces current nubs)
 - [ ] Hover on snaking connector highlights entire event across all months
-- [x] Export: XLSX format (via ExcelJS, lazy-loaded; CSV already done)
-- [ ] Export: TXT format
+- [x] Export: XLSX format (via ExcelJS, lazy-loaded; CSV removed — XLSX covers all export needs)
 - [ ] Cell summary — click/hover a cell to see all events within that period at a glance; works across zoom levels (cell = day, week, or month)
 
 ## Known Bugs
