@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, type EventSpan } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import { getTranslations } from './i18n';
@@ -66,6 +66,31 @@ function App() {
     () => computeGlobalRowOffsets(events, visibleCategories),
     [events, visibleCategories]
   );
+
+  // ── Drag state ──────────────────────────────────────────────────────────────
+  const dragStateRef = useRef<{
+    eventId: string;
+    durationMs: number;
+    clickOffsetDays: number;
+    previewStart: Date | null;
+    previewEnd: Date | null;
+  } | null>(null);
+  const dragOccurredRef = useRef(false);
+  const [dragEventId, setDragEventId] = useState<string | null>(null);
+  const [dragPreview, setDragPreview] = useState<{
+    eventId: string; newStart: Date; newEnd: Date;
+  } | null>(null);
+
+  // Swap the dragging event's dates for preview dates so getMonthSpans
+  // re-renders the bar at its new position on every mousemove.
+  const effectiveEvents = useMemo(() => {
+    if (!dragPreview) return events;
+    return events.map(e =>
+      e.id === dragPreview.eventId
+        ? { ...e, start: dragPreview.newStart, end: dragPreview.newEnd }
+        : e
+    );
+  }, [events, dragPreview]);
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -202,6 +227,94 @@ function App() {
     });
   };
 
+  // Attach / detach document-level drag listeners whenever a drag session starts.
+  useEffect(() => {
+    if (!dragEventId) return;
+    document.body.classList.add('drag-active');
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragStateRef.current) return;
+      dragOccurredRef.current = true;
+
+      // pointer-events:none is set on all bars via body.drag-active, so
+      // elementFromPoint reaches the day cell underneath.
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const cell = el?.closest('[data-day]') as HTMLElement | null;
+      if (!cell) return;
+
+      const monthIdx = parseInt(cell.dataset.month ?? '0');
+      const dayNum   = parseInt(cell.dataset.day   ?? '1');
+      const { eventId, durationMs, clickOffsetDays } = dragStateRef.current;
+
+      const hoveredDate = new Date(currentYear, monthIdx, dayNum);
+      const newStart = new Date(hoveredDate.getTime() - clickOffsetDays * 86400000);
+      const newEnd   = new Date(newStart.getTime() + durationMs);
+
+      // Don't let the event leave the current year.
+      if (newStart < new Date(currentYear, 0, 1) || newEnd > new Date(currentYear, 11, 31)) return;
+
+      dragStateRef.current.previewStart = newStart;
+      dragStateRef.current.previewEnd   = newEnd;
+      setDragPreview({ eventId, newStart, newEnd });
+    };
+
+    const onMouseUp = () => {
+      document.body.classList.remove('drag-active');
+      if (dragStateRef.current?.previewStart && dragStateRef.current?.previewEnd) {
+        const { eventId, previewStart, previewEnd } = dragStateRef.current;
+        setEvents(prev => prev.map(e =>
+          e.id === eventId ? { ...e, start: previewStart!, end: previewEnd! } : e
+        ));
+      }
+      dragStateRef.current = null;
+      setDragEventId(null);
+      setDragPreview(null);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup',   onMouseUp);
+    return () => {
+      document.body.classList.remove('drag-active');
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup',   onMouseUp);
+    };
+  }, [dragEventId, currentYear]);
+
+  const handleBarMouseDown = (
+    e: React.MouseEvent,
+    event: CalendarEvent,
+    span: EventSpan,
+    monthIndex: number
+  ) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const eventStart = new Date(event.start); eventStart.setHours(0, 0, 0, 0);
+    const eventEnd   = new Date(event.end);   eventEnd.setHours(0, 0, 0, 0);
+    const durationMs = eventEnd.getTime() - eventStart.getTime();
+
+    // Figure out which day inside the bar the user clicked, so the bar follows
+    // the cursor at the same relative position rather than snapping to day 1.
+    const barRect    = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const relX       = Math.max(0, e.clientX - barRect.left);
+    const daysInMonth  = new Date(currentYear, monthIndex + 1, 0).getDate();
+    const barStartDay  = span.isStartContinuation ? 1 : eventStart.getDate();
+    const barEndDay    = span.isEndContinuation   ? daysInMonth : eventEnd.getDate();
+    const barDays      = Math.max(1, barEndDay - barStartDay + 1);
+    const dayIndexInBar   = Math.floor((relX / barRect.width) * barDays);
+    const clickedDay      = barStartDay + dayIndexInBar;
+    const clickedDate     = new Date(currentYear, monthIndex, clickedDay);
+    clickedDate.setHours(0, 0, 0, 0);
+    const clickOffsetDays = Math.round(
+      (clickedDate.getTime() - eventStart.getTime()) / 86400000
+    );
+
+    dragOccurredRef.current = false;
+    dragStateRef.current = { eventId: event.id, durationMs, clickOffsetDays, previewStart: null, previewEnd: null };
+    setDragEventId(event.id);
+  };
+
   const handleDayCellClick = (monthIndex: number, dayNumber: number) => {
     const m = String(monthIndex + 1).padStart(2, '0');
     const d = String(dayNumber).padStart(2, '0');
@@ -287,7 +400,7 @@ function App() {
         })()}
 
         {yearData.map((month) => {
-          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories, weekdayAlign, weekStart, globalRowOffsets);
+          const monthSpans = getMonthSpans(effectiveEvents, month.index, currentYear, visibleCategories, weekdayAlign, weekStart, globalRowOffsets);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
           const rowHeight = 40 + (maxOffset + 1) * 22;
           const offset = weekdayAlign ? getMonthOffset(currentYear, month.index, weekStart) : 0;
@@ -314,6 +427,8 @@ function App() {
                   <div
                     key={day.dayNumber}
                     className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
+                    data-month={month.index}
+                    data-day={day.dayNumber}
                     onClick={() => handleDayCellClick(month.index, day.dayNumber)}
                   >
                     <span className="day-number">{day.dayNumber}</span>
@@ -330,13 +445,13 @@ function App() {
 
               {/* Event Spans — abs-pos direct grid children; containing block = grid area */}
               {monthSpans.map((span) => {
-                const event = events.find(e => e.id === span.eventId);
+                const event = effectiveEvents.find(e => e.id === span.eventId);
                 const category = categories.find(c => c.id === event?.categoryId);
 
                 return (
                   <div
                     key={`${month.index}-${span.eventId}`}
-                    className="event-bar"
+                    className={`event-bar${dragEventId === span.eventId ? ' is-dragging' : ''}`}
                     style={{
                       gridColumnStart: span.startColumn,
                       gridColumnEnd: span.endColumn,
@@ -345,8 +460,12 @@ function App() {
                       backgroundColor: category?.color,
                     }}
                     title={event?.name}
+                    onMouseDown={(e) => {
+                      if (event) handleBarMouseDown(e, event, span, month.index);
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (dragOccurredRef.current) return;
                       if (event) openEditEvent(event);
                     }}
                   >

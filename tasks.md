@@ -21,6 +21,7 @@
 - [x] Week number display (ISO 8601, toggled in Settings)
 
 ## Enhancements (Roadmap)
+- [x] Drag and drop event bars — move an event to a new start date; duration is preserved
 - [ ] User Layout Preferences: label positioning toggle (day numbers/weekdays in header row vs. inside cells)
 - [ ] White-labeling (custom branding, logo, theme colors, fonts, default categories)
 - [ ] Advanced "S-curve" snaking connectors (replaces current nubs)
