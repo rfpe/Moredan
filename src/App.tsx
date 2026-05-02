@@ -31,6 +31,14 @@ function App() {
   const yearData = useMemo(() => generateYearData(currentYear, locale), [currentYear, locale]);
   const t = useMemo(() => getTranslations(locale), [locale]);
 
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  const narrowWeekday = windowWidth <= 1300;
+
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('moredan_categories');
     return saved ? JSON.parse(saved) : [
@@ -264,7 +272,7 @@ function App() {
                 date.setDate(anchor.getDate() + dayIndex);
                 return (
                   <div key={i} className="weekday-header-cell">
-                    {date.toLocaleString(locale, { weekday: 'short' })}
+                    {date.toLocaleString(locale, { weekday: narrowWeekday ? 'narrow' : 'short' })}
                   </div>
                 );
               })}
@@ -303,7 +311,7 @@ function App() {
                     onClick={() => handleDayCellClick(month.index, day.dayNumber)}
                   >
                     <span className="day-number">{day.dayNumber}</span>
-                    {!weekdayAlign && <span className="day-weekday">{day.weekday}</span>}
+                    {!weekdayAlign && <span className="day-weekday">{narrowWeekday ? day.weekdayNarrow : day.weekday}</span>}
                     {weekNum !== null && <span className="week-number-badge">{weekNum}</span>}
                   </div>
                 );
