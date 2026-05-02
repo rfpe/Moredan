@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { type Category } from '../types';
+import type { Translations } from '../i18n';
 
 interface CategoryFormProps {
   categories: Category[];
   onAdd: (category: Omit<Category, 'id'>) => void;
   onDelete: (id: string) => void;
   onCancel: () => void;
+  t: Translations;
 }
 
-const CategoryForm: React.FC<CategoryFormProps> = ({ categories, onAdd, onDelete, onCancel }) => {
+const CategoryForm: React.FC<CategoryFormProps> = ({ categories, onAdd, onDelete, onCancel, t }) => {
   const [name, setName] = useState('');
   const [color, setColor] = useState('#3b82f6');
 
@@ -24,17 +26,17 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categories, onAdd, onDelete
       <form className="category-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
-            <label>Category Name</label>
-            <input 
-              type="text" 
-              value={name} 
-              onChange={e => setName(e.target.value)} 
-              required 
-              placeholder="e.g. Travel"
+            <label>{t.categoryName}</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+              placeholder={t.categoryNamePlaceholder}
             />
           </div>
           <div className="form-group">
-            <label>Color</label>
+            <label>{t.color}</label>
             <input 
               type="color" 
               value={color} 
@@ -43,11 +45,11 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categories, onAdd, onDelete
             />
           </div>
         </div>
-        <button type="submit" className="primary-btn">Add Category</button>
+        <button type="submit" className="primary-btn">{t.addCategory}</button>
       </form>
 
       <div className="category-list">
-        <h3>Existing Categories</h3>
+        <h3>{t.existingCategories}</h3>
         {categories.map(cat => (
           <div key={cat.id} className="category-item">
             <span className="color-dot" style={{ backgroundColor: cat.color }}></span>
@@ -64,7 +66,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ categories, onAdd, onDelete
       </div>
 
       <div className="form-actions">
-        <button className="secondary-btn" onClick={onCancel}>Close</button>
+        <button className="secondary-btn" onClick={onCancel}>{t.close}</button>
       </div>
     </div>
   );
