@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import { getTranslations } from './i18n';
@@ -61,6 +61,12 @@ function App() {
   });
 
   const [visibleCategories, setVisibleCategories] = useState<Set<string>>(new Set(categories.map(c => c.id)));
+
+  const globalRowOffsets = useMemo(
+    () => computeGlobalRowOffsets(events, visibleCategories),
+    [events, visibleCategories]
+  );
+
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -281,7 +287,7 @@ function App() {
         })()}
 
         {yearData.map((month) => {
-          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories, weekdayAlign, weekStart);
+          const monthSpans = getMonthSpans(events, month.index, currentYear, visibleCategories, weekdayAlign, weekStart, globalRowOffsets);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
           const rowHeight = 40 + (maxOffset + 1) * 22;
           const offset = weekdayAlign ? getMonthOffset(currentYear, month.index, weekStart) : 0;
@@ -316,6 +322,11 @@ function App() {
                   </div>
                 );
               })}
+
+              {/* Filler cells (pad short months to 31 columns) */}
+              {!weekdayAlign && Array.from({ length: 31 - month.days.length }, (_, i) => (
+                <div key={`filler-${i}`} className="day-cell day-cell--filler" />
+              ))}
 
               {/* Event Spans */}
               <div className="event-row-overlay">

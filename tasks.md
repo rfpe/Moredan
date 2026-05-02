@@ -10,7 +10,7 @@
 - [x] Phase 1 (Enhanced): Top-left labels & Unified spans
 - [x] Fix Event Spanning & Title Truncation bugs
 - [x] Phase 2: Snaking Connection (vertical nubs at month boundaries)
-- [ ] Phase 3: Stacking refinement — sync rowOffset across months for snaking events
+- [x] Phase 3: Stacking refinement — sync rowOffset across months for snaking events
 - [x] Phase 4: Interaction (direct edit from bar, pre-filled add, delete from form)
 - [x] Phase 5: Vertical Weekday Alignment (42-column grid, offset cells, header row)
 
@@ -30,6 +30,9 @@
 
 ## Known Bugs
 - [x] **Weekday mode: stacking false-positive.** Fixed in `getMonthSpans`: rows now store `{start, end}` pairs; overlap check uses `newStart < existingEnd && newEnd > existingStart` instead of just `newStart < existingEnd`.
+- [x] **Misalignment (two issues):**
+  - [x] Fix 1: Visual uniformity — render 31 filler cells for short months so every row has the same visual width
+  - [x] Fix 2: Stacking sync — multi-month events get globally consistent rowOffset so snaking nubs connect at the same height
 
 ## Pending Decisions
 - [ ] None.

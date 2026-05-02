@@ -72,13 +72,57 @@ export interface EventSpan {
   isEndContinuation: boolean;
 }
 
+// Assigns globally consistent row offsets to multi-month events so snaking
+// connections appear at the same height in every month segment.
+export const computeGlobalRowOffsets = (
+  events: any[],
+  visibleCategoryIds: Set<string>
+): Map<string, number> => {
+  const multiMonth = events.filter(e => {
+    if (!visibleCategoryIds.has(e.categoryId)) return false;
+    const s = new Date(e.start); s.setHours(0, 0, 0, 0);
+    const en = new Date(e.end); en.setHours(0, 0, 0, 0);
+    return s.getMonth() !== en.getMonth() || s.getFullYear() !== en.getFullYear();
+  });
+
+  const sorted = [...multiMonth].sort((a, b) => {
+    const sd = new Date(a.start).getTime() - new Date(b.start).getTime();
+    if (sd !== 0) return sd;
+    const aDur = new Date(a.end).getTime() - new Date(a.start).getTime();
+    const bDur = new Date(b.end).getTime() - new Date(b.start).getTime();
+    return bDur - aDur;
+  });
+
+  const rowRanges: Array<Array<{ start: Date; end: Date }>> = [];
+  const result = new Map<string, number>();
+
+  for (const event of sorted) {
+    const eStart = new Date(event.start); eStart.setHours(0, 0, 0, 0);
+    const eEnd = new Date(event.end); eEnd.setHours(0, 0, 0, 0);
+    let row = 0;
+    while (true) {
+      if (!rowRanges[row]) rowRanges[row] = [];
+      const conflict = rowRanges[row].some(r => eStart <= r.end && eEnd >= r.start);
+      if (!conflict) {
+        rowRanges[row].push({ start: eStart, end: eEnd });
+        result.set(event.id, row);
+        break;
+      }
+      row++;
+    }
+  }
+
+  return result;
+};
+
 export const getMonthSpans = (
   events: any[],
   monthIndex: number,
   year: number,
   visibleCategoryIds: Set<string>,
   weekdayAlign: boolean = false,
-  weekStart: number = 1
+  weekStart: number = 1,
+  globalRowOffsets: Map<string, number> = new Map()
 ): EventSpan[] => {
   const monthStart = new Date(year, monthIndex, 1);
   const monthEnd = new Date(year, monthIndex + 1, 0);
@@ -112,16 +156,29 @@ export const getMonthSpans = (
     }
   });
 
-  // 2. Greedy Stacking
-  const sortedSpans = [...spans].sort((a, b) => {
+  // 2. Greedy Stacking — multi-month events use their pre-assigned global row;
+  //    single-month events fill in gaps with a local greedy pass.
+  const positionedSpans: EventSpan[] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
+
+  // Pass 1: place global (multi-month) events first to reserve their rows
+  const globalSpans = spans.filter(s => globalRowOffsets.has(s.eventId));
+  const localSpans = spans.filter(s => !globalRowOffsets.has(s.eventId));
+
+  globalSpans.forEach(span => {
+    const rowIndex = globalRowOffsets.get(span.eventId)!;
+    if (!rows[rowIndex]) rows[rowIndex] = [];
+    rows[rowIndex].push({ start: span.startColumn, end: span.endColumn });
+    positionedSpans.push({ ...span, rowOffset: rowIndex });
+  });
+
+  // Pass 2: local greedy for single-month events, skipping rows already taken
+  const sortedLocal = [...localSpans].sort((a, b) => {
     if (a.startColumn !== b.startColumn) return a.startColumn - b.startColumn;
     return (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn);
   });
 
-  const positionedSpans: EventSpan[] = [];
-  const rows: Array<Array<{ start: number; end: number }>> = [];
-
-  sortedSpans.forEach(span => {
+  sortedLocal.forEach(span => {
     let rowIndex = 0;
     while (true) {
       if (!rows[rowIndex]) rows[rowIndex] = [];
