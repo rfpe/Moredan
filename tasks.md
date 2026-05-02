@@ -21,13 +21,17 @@
 - [x] Week number display (ISO 8601, toggled in Settings)
 
 ## Enhancements (Roadmap)
+- [ ] Bird's eye view — zoom levels: (1) weeks as cells per month row, (2) months as cells per year row; allows quick navigation of large date ranges
+- [ ] Vertical layout — months as columns, days as rows (transpose of current layout)
+- [ ] Mobile UI/UX — touch-friendly layout and interactions for small screens
 - [x] Drag and drop event bars — move an event to a new start date; duration is preserved
 - [ ] User Layout Preferences: label positioning toggle (day numbers/weekdays in header row vs. inside cells)
 - [ ] White-labeling (custom branding, logo, theme colors, fonts, default categories)
 - [ ] Advanced "S-curve" snaking connectors (replaces current nubs)
 - [ ] Hover on snaking connector highlights entire event across all months
-- [ ] Export: TXT and XLSX formats (CSV already done)
-- [ ] Day summary view — see all events on a given day at a glance (removed with old day detail modal; tooltip or side panel)
+- [x] Export: XLSX format (via ExcelJS, lazy-loaded; CSV already done)
+- [ ] Export: TXT format
+- [ ] Cell summary — click/hover a cell to see all events within that period at a glance; works across zoom levels (cell = day, week, or month)
 
 ## Known Bugs
 - [x] **Weekday mode: stacking false-positive.** Fixed in `getMonthSpans`: rows now store `{start, end}` pairs; overlap check uses `newStart < existingEnd && newEnd > existingStart` instead of just `newStart < existingEnd`.
