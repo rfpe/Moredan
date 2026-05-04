@@ -301,13 +301,56 @@ function App() {
     setVisibleCategories(prev => new Set([...prev, newCat.id]));
   };
 
-  const handleDeleteCategory = (id: string) => {
+  const handleEditCategory = (id: string, data: Omit<Category, 'id'>) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+  };
+
+  const handleDeleteCategory = (id: string, reassign: boolean) => {
     if (categories.length <= 1) return;
-    setCategories(prev => prev.filter(c => c.id !== id));
-    setEvents(prev => prev.filter(e => e.categoryId !== id));
-    setVisibleCategories(prev => {
-      const next = new Set(prev);
-      next.delete(id);
+    if (reassign) {
+      const UNCAT_ID = 'uncategorized';
+      const hasUncat = categories.some(c => c.id === UNCAT_ID);
+      if (!hasUncat) {
+        setCategories(prev => [
+          ...prev.filter(c => c.id !== id),
+          { id: UNCAT_ID, name: 'Uncategorized', color: '#94a3b8' },
+        ]);
+        setVisibleCategories(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          next.add(UNCAT_ID);
+          return next;
+        });
+      } else {
+        setCategories(prev => prev.filter(c => c.id !== id));
+        setVisibleCategories(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          next.add(UNCAT_ID);
+          return next;
+        });
+      }
+      setEvents(prev => prev.map(e => e.categoryId === id ? { ...e, categoryId: UNCAT_ID } : e));
+    } else {
+      setCategories(prev => prev.filter(c => c.id !== id));
+      setEvents(prev => prev.filter(e => e.categoryId !== id));
+      setVisibleCategories(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const handleReorderCategory = (id: string, direction: 'up' | 'down') => {
+    setCategories(prev => {
+      const idx = prev.findIndex(c => c.id === id);
+      if (idx < 0) return prev;
+      if (direction === 'up' && idx === 0) return prev;
+      if (direction === 'down' && idx === prev.length - 1) return prev;
+      const next = [...prev];
+      const swap = direction === 'up' ? idx - 1 : idx + 1;
+      [next[idx], next[swap]] = [next[swap], next[idx]];
       return next;
     });
   };
@@ -463,7 +506,7 @@ function App() {
         </div>
 
         <div className="category-filters">
-          {categories.map(cat => {
+          {categories.slice(0, 10).map(cat => {
             const isActive = visibleCategories.has(cat.id);
             return (
               <button
@@ -879,8 +922,11 @@ function App() {
       >
         <CategoryForm
           categories={categories}
+          eventCounts={Object.fromEntries(categories.map(c => [c.id, events.filter(e => e.categoryId === c.id).length]))}
           onAdd={handleAddCategory}
+          onEdit={handleEditCategory}
           onDelete={handleDeleteCategory}
+          onReorder={handleReorderCategory}
           onCancel={() => setIsCategoryModalOpen(false)}
           t={t}
         />
