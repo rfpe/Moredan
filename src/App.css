@@ -1,3 +1,5 @@
+:root { --font-scale: 1; }
+
 .app-container {
   display: flex;
   flex-direction: column;
@@ -223,7 +225,7 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  font-size: 0.55rem;
+  font-size: calc(0.55rem * var(--font-scale));
   font-weight: 700;
   color: #64748b;
   line-height: 1;
@@ -262,7 +264,7 @@
 
 .weekday-header-cell {
   background-color: #f1f5f9;
-  font-size: 0.6rem;
+  font-size: calc(0.6rem * var(--font-scale));
   font-weight: 600;
   color: #475569;
   text-align: center;
@@ -305,7 +307,7 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--font-scale));
   color: #475569;
   text-transform: uppercase;
   border-right: 1px solid #e2e8f0;
@@ -335,13 +337,13 @@
 }
 
 .day-number {
-  font-size: 0.65rem;
+  font-size: calc(0.65rem * var(--font-scale));
   font-weight: 600;
   color: #64748b;
 }
 
 .day-weekday {
-  font-size: 0.6rem;
+  font-size: calc(0.6rem * var(--font-scale));
   color: #94a3b8;
   text-transform: capitalize;
 }
@@ -356,7 +358,7 @@
   right: 0;
   height: 18px;
   border-radius: 4px;
-  font-size: 0.65rem;
+  font-size: calc(0.65rem * var(--font-scale));
   color: white;
   display: flex;
   align-items: center;
@@ -532,6 +534,42 @@ body.drag-active .event-bar {
   font-size: 0.85rem;
 }
 
+/* ── Font size toggle ────────────────────────────────────────────────────── */
+.font-size-toggle {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-right: 0.75rem;
+}
+
+.font-size-toggle button {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+}
+
+.font-size-toggle button:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.font-size-toggle button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.font-size-toggle button + button {
+  border-left: 1px solid #e2e8f0;
+}
+
 /* ── View toggle ─────────────────────────────────────────────────────────── */
 .view-toggle {
   display: flex;
@@ -596,7 +634,7 @@ body.drag-active .event-bar {
 }
 
 .week-cell-label {
-  font-size: 0.65rem;
+  font-size: calc(0.65rem * var(--font-scale));
   color: #94a3b8;
   line-height: 1;
   margin-bottom: 4px;
@@ -648,7 +686,7 @@ body.drag-active .event-bar {
 }
 
 .month-overview-name {
-  font-size: 0.72rem;
+  font-size: calc(0.72rem * var(--font-scale));
   font-weight: 600;
   color: #475569;
   margin-bottom: 4px;

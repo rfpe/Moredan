@@ -116,6 +116,13 @@ function App() {
     if (idx < VIEW_MODES.length - 1) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx + 1]); }
   };
 
+  const [fontScale, setFontScale] = useState<number>(() =>
+    parseFloat(localStorage.getItem('moredan_font_scale') ?? '1')
+  );
+  useEffect(() => {
+    localStorage.setItem('moredan_font_scale', String(fontScale));
+  }, [fontScale]);
+
   const [cellOverlay, setCellOverlay] = useState<{
     label: string;
     events: CalendarEvent[];
@@ -476,6 +483,18 @@ function App() {
         </div>
 
         <div className="controls">
+          <div className="font-size-toggle">
+            <button
+              onClick={() => setFontScale(s => Math.max(0.75, +(s - 0.1).toFixed(1)))}
+              disabled={fontScale <= 0.75}
+              title="Decrease font size"
+            >A-</button>
+            <button
+              onClick={() => setFontScale(s => Math.min(1.5, +(s + 0.1).toFixed(1)))}
+              disabled={fontScale >= 1.5}
+              title="Increase font size"
+            >A+</button>
+          </div>
           <div className="view-toggle">
             <button
               className="view-toggle-btn"
@@ -498,7 +517,7 @@ function App() {
         </div>
       </header>
 
-      <main className="calendar-container">
+      <main className="calendar-container" style={{ '--font-scale': fontScale } as React.CSSProperties}>
         {/* ── Month view ────────────────────────────────────────────────────── */}
         {viewMode === 'month' && (() => {
           const { cells, bars } = getMonthViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
