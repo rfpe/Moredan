@@ -77,7 +77,7 @@
 
 ### Visuals & Polish
 - [ ] Week number in day zoom is too small — consider moving it above the cell (vertical space is available)
-- [ ] Header button styling inconsistency — "A-/A+", "+ Month -", "All/None", and "Settings" use different styles than "Today", "Add Event", "Category", "Import", "Download"; standardize across all header controls
+- [x] Header button styling inconsistency — "A-/A+", "+ Month -", "All/None", and "Settings" use different styles than "Today", "Add Event", "Category", "Import", "Download"; standardize across all header controls
 - [ ] Advanced S-curve snaking connectors (replaces current nubs)
 - [ ] Hover on snaking connector highlights entire event across all months
 - [ ] Event color customization per event (override category color)
