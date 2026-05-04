@@ -8,6 +8,7 @@ import Modal from './components/Modal';
 import EventForm from './components/EventForm';
 import CategoryForm from './components/CategoryForm';
 import SettingsModal from './components/SettingsModal';
+import CellOverlay from './components/CellOverlay';
 
 function App() {
   const [currentYear, setCurrentYear] = useState(() => {
@@ -113,6 +114,23 @@ function App() {
   const zoomOut = () => {
     const idx = VIEW_MODES.indexOf(viewMode);
     if (idx < VIEW_MODES.length - 1) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx + 1]); }
+  };
+
+  const [cellOverlay, setCellOverlay] = useState<{
+    label: string;
+    events: CalendarEvent[];
+    prefillDate?: string;
+    position: { top: number; left: number };
+  } | null>(null);
+
+  const openCellOverlay = (
+    label: string,
+    events: CalendarEvent[],
+    anchorEl: HTMLElement,
+    prefillDate?: string
+  ) => {
+    const rect = anchorEl.getBoundingClientRect();
+    setCellOverlay({ label, events, prefillDate, position: { top: rect.bottom + 4, left: rect.left } });
   };
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -361,10 +379,52 @@ function App() {
     setDragEventId(event.id);
   };
 
-  const handleDayCellClick = (monthIndex: number, dayNumber: number) => {
+  const handleDayCellClick = (monthIndex: number, dayNumber: number, anchorEl: HTMLElement) => {
+    const day = new Date(currentYear, monthIndex, dayNumber);
+    day.setHours(0, 0, 0, 0);
+    const dayEvents = effectiveEvents.filter(e => {
+      if (!visibleCategories.has(e.categoryId)) return false;
+      const s = new Date(e.start); s.setHours(0, 0, 0, 0);
+      const en = new Date(e.end);  en.setHours(0, 0, 0, 0);
+      return s <= day && en >= day;
+    });
     const m = String(monthIndex + 1).padStart(2, '0');
     const d = String(dayNumber).padStart(2, '0');
-    openAddEvent(`${currentYear}-${m}-${d}`);
+    const prefill = `${currentYear}-${m}-${d}`;
+    const label = day.toLocaleDateString(locale, { month: 'short', day: 'numeric', weekday: 'short' });
+    if (dayEvents.length > 0) {
+      openCellOverlay(label, dayEvents, anchorEl, prefill);
+    } else {
+      openAddEvent(prefill);
+    }
+  };
+
+  const handleWeekCellClick = (isoWeek: number, weekStart: Date, weekEnd: Date, anchorEl: HTMLElement) => {
+    const wStart = new Date(weekStart); wStart.setHours(0, 0, 0, 0);
+    const wEnd   = new Date(weekEnd);   wEnd.setHours(0, 0, 0, 0);
+    const weekEvents = effectiveEvents.filter(e => {
+      if (!visibleCategories.has(e.categoryId)) return false;
+      const s = new Date(e.start); s.setHours(0, 0, 0, 0);
+      const en = new Date(e.end);  en.setHours(0, 0, 0, 0);
+      return s <= wEnd && en >= wStart;
+    });
+    const label = `W${isoWeek} · ${wStart.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}–${wEnd.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`;
+    const prefill = weekStart.toISOString().split('T')[0];
+    openCellOverlay(label, weekEvents, anchorEl, prefill);
+  };
+
+  const handleMonthCellClick = (monthIndex: number, anchorEl: HTMLElement) => {
+    const mStart = new Date(currentYear, monthIndex, 1);     mStart.setHours(0, 0, 0, 0);
+    const mEnd   = new Date(currentYear, monthIndex + 1, 0); mEnd.setHours(0, 0, 0, 0);
+    const monthEvents = effectiveEvents.filter(e => {
+      if (!visibleCategories.has(e.categoryId)) return false;
+      const s = new Date(e.start); s.setHours(0, 0, 0, 0);
+      const en = new Date(e.end);  en.setHours(0, 0, 0, 0);
+      return s <= mEnd && en >= mStart;
+    });
+    const label = mStart.toLocaleDateString(locale, { month: 'long' });
+    const m = String(monthIndex + 1).padStart(2, '0');
+    openCellOverlay(label, monthEvents, anchorEl, `${currentYear}-${m}-01`);
   };
 
   return (
@@ -457,7 +517,7 @@ function App() {
               {cells.map((cell, m) => {
                 const monthName = yearData[m].name;
                 return (
-                  <div key={m} className="month-overview-cell">
+                  <div key={m} className="month-overview-cell" onClick={(e) => handleMonthCellClick(m, e.currentTarget)}>
                     <span className="month-overview-name">{monthName}</span>
                     <div className="month-overview-indicators">
                       {cell.indicators.map(ind => {
@@ -531,7 +591,11 @@ function App() {
               {Array.from({ length: 6 }, (_, i) => {
                 const week = weeks[i];
                 return week ? (
-                  <div key={week.isoWeek} className="week-cell">
+                  <div
+                    key={week.isoWeek}
+                    className="week-cell"
+                    onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
+                  >
                     <span className="week-cell-label">W{week.isoWeek}</span>
                     {/* Dots for sub-week events */}
                     <div className="week-cell-dots">
@@ -544,7 +608,6 @@ function App() {
                             className="event-dot"
                             style={{ backgroundColor: category?.color }}
                             title={event?.name}
-                            onClick={() => { if (event) openEditEvent(event); }}
                           />
                         );
                       })}
@@ -639,7 +702,7 @@ function App() {
                     className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
                     data-month={month.index}
                     data-day={day.dayNumber}
-                    onClick={() => handleDayCellClick(month.index, day.dayNumber)}
+                    onClick={(e) => handleDayCellClick(month.index, day.dayNumber, e.currentTarget)}
                   >
                     <span className="day-number">{day.dayNumber}</span>
                     {!weekdayAlign && <span className="day-weekday">{narrowWeekday ? day.weekdayNarrow : day.weekday}</span>}
@@ -688,6 +751,18 @@ function App() {
           );
         })}
       </main>
+
+      {cellOverlay && (
+        <CellOverlay
+          label={cellOverlay.label}
+          events={cellOverlay.events}
+          categories={categories}
+          position={cellOverlay.position}
+          onEdit={(ev) => { setCellOverlay(null); openEditEvent(ev); }}
+          onAdd={() => { setCellOverlay(null); openAddEvent(cellOverlay.prefillDate ?? undefined); }}
+          onClose={() => setCellOverlay(null)}
+        />
+      )}
 
       <Modal
         isOpen={isEventModalOpen}
