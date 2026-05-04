@@ -938,12 +938,40 @@ function App() {
           const rowHeight = 40 + (maxOffset + 1) * 22;
           const offset = weekdayAlign ? getMonthOffset(currentYear, month.index, weekStart) : 0;
 
+          const weekNumCols: (number | null)[] = (() => {
+            if (!showWeekNumbers) return [];
+            const cols = weekdayAlign ? 42 : 31;
+            const result: (number | null)[] = Array(cols).fill(null);
+            if (weekdayAlign) {
+              for (let col = 0; col < cols; col++) {
+                const date = new Date(currentYear, month.index, 1 - offset + col);
+                if (date.getDay() === weekStart) result[col] = getISOWeekNumber(date);
+              }
+            } else {
+              month.days.forEach(day => {
+                const date = new Date(currentYear, month.index, day.dayNumber);
+                if (date.getDay() === weekStart) result[day.dayNumber - 1] = getISOWeekNumber(date);
+              });
+            }
+            return result;
+          })();
+
           return (
-            <div
-              key={month.name}
-              className={`month-row${weekdayAlign ? ' month-row--weekday' : ''}`}
-              style={{ minHeight: `${rowHeight}px` }}
-            >
+            <div key={month.name}>
+              {showWeekNumbers && (
+                <div className={`week-number-row${weekdayAlign ? ' week-number-row--weekday' : ''}`}>
+                  <div className="week-number-row-label" />
+                  {weekNumCols.map((wn, i) => (
+                    <div key={i} className="week-number-row-cell">
+                      {wn !== null && <span className="week-number-badge">W{wn}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div
+                className={`month-row${weekdayAlign ? ' month-row--weekday' : ''}`}
+                style={{ minHeight: `${rowHeight}px` }}
+              >
               <div className="month-label">{month.name}</div>
 
               {/* Offset cells (empty weekday slots before day 1) */}
@@ -953,9 +981,6 @@ function App() {
 
               {/* Background Grid */}
               {month.days.map((day) => {
-                const date = new Date(currentYear, month.index, day.dayNumber);
-                const isWeekStart = date.getDay() === weekStart;
-                const weekNum = showWeekNumbers && isWeekStart ? getISOWeekNumber(date) : null;
                 const isToday = currentYear === today.getFullYear()
                   && month.index === today.getMonth()
                   && day.dayNumber === today.getDate();
@@ -969,7 +994,6 @@ function App() {
                   >
                     <span className="day-number">{day.dayNumber}</span>
                     {!weekdayAlign && <span className="day-weekday">{narrowWeekday ? day.weekdayNarrow : day.weekday}</span>}
-                    {weekNum !== null && <span className="week-number-badge">{weekNum}</span>}
                   </div>
                 );
               })}
@@ -1010,6 +1034,7 @@ function App() {
                   </div>
                 );
               })}
+            </div>
             </div>
           );
         })}

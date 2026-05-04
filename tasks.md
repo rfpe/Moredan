@@ -76,7 +76,7 @@
 - [ ] Event dependencies — link events with an arrow to show sequencing
 
 ### Visuals & Polish
-- [ ] Week number in day zoom is too small — consider moving it above the cell (vertical space is available)
+- [x] Week number in day zoom is too small — moved to a thin row above each month row; badge is larger and more prominent
 - [x] Header button styling inconsistency — "A-/A+", "+ Month -", "All/None", and "Settings" use different styles than "Today", "Add Event", "Category", "Import", "Download"; standardize across all header controls
 - [ ] Advanced S-curve snaking connectors (replaces current nubs)
 - [ ] Hover on snaking connector highlights entire event across all months
