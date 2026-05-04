@@ -225,18 +225,36 @@
   cursor: pointer;
 }
 
+.week-number-row {
+  display: grid;
+  grid-template-columns: 60px repeat(31, 1fr);
+  margin-bottom: 2px;
+}
+
+.week-number-row--weekday {
+  grid-template-columns: 60px repeat(42, 1fr);
+}
+
+.week-number-row-label {
+  /* empty label column — aligns with month-label */
+}
+
+.week-number-row-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18px;
+}
+
 .week-number-badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: calc(0.55rem * var(--font-scale));
+  font-size: calc(0.7rem * var(--font-scale));
   font-weight: 700;
-  color: #64748b;
+  color: #475569;
   line-height: 1;
   pointer-events: none;
   border: 1px solid #cbd5e1;
-  border-radius: 2px;
-  padding: 1px 2px;
+  border-radius: 3px;
+  padding: 2px 4px;
   background-color: #f1f5f9;
 }
 
