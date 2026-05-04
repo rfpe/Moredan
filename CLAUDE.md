@@ -9,6 +9,9 @@ Moredan is a yearly calendar application focused on a **Linear Timeline Layout**
 - **Data Persistence:** All categories and events are persisted in `localStorage` (`moredan_categories`, `moredan_events`).
 - **Dependencies:** Prefer vanilla TypeScript and CSS for UI. ExcelJS is accepted as a lazy-loaded dependency for XLSX export only (`await import('exceljs')` inside the handler). Avoid adding new heavy dependencies without justification.
 
+## General Constraints
+- **Translations/i18n:** Do not add, suggest, or refactor for translations or internationalization unless explicitly asked.
+
 ## Coding Conventions
 - **Component Structure:**
   - `App.tsx` manages all core state and the main timeline render loop.
