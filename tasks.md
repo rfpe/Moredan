@@ -55,7 +55,7 @@
 
 ### Layout Variants
 - [x] Zoom: week view — ISO week cells per row; sub-week events as dots, multi-week as bars; auto-activates on mobile
-- [ ] Zoom: month view — one cell per month per row (12 cells); next zoom-out level after week view
+- [x] Zoom: month view — single row × 12 month cells; dot/pill indicators per category; multi-month events as bars
 - [ ] Vertical layout — months as columns, days as rows (transpose of current layout)
 - [ ] Mobile UI/UX — touch-friendly layout and interactions for small screens
 

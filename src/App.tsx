@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, getMonthViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import { getTranslations } from './i18n';
@@ -93,7 +93,10 @@ function App() {
     );
   }, [events, dragPreview]);
 
-  const [viewMode, setViewMode] = useState<'day' | 'week'>(() =>
+  const VIEW_MODES = ['day', 'week', 'month'] as const;
+  type ViewMode = typeof VIEW_MODES[number];
+
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
     window.innerWidth <= 768 ? 'week' : 'day'
   );
   const userOverrodeViewRef = useRef(false);
@@ -102,6 +105,15 @@ function App() {
     if (userOverrodeViewRef.current) return;
     setViewMode(windowWidth <= 768 ? 'week' : 'day');
   }, [windowWidth]);
+
+  const zoomIn = () => {
+    const idx = VIEW_MODES.indexOf(viewMode);
+    if (idx > 0) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx - 1]); }
+  };
+  const zoomOut = () => {
+    const idx = VIEW_MODES.indexOf(viewMode);
+    if (idx < VIEW_MODES.length - 1) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx + 1]); }
+  };
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -406,15 +418,18 @@ function App() {
         <div className="controls">
           <div className="view-toggle">
             <button
-              className={`view-toggle-btn${viewMode === 'day' ? ' active' : ''}`}
-              onClick={() => { userOverrodeViewRef.current = true; setViewMode('day'); }}
-              title="Day view"
-            >Day</button>
+              className="view-toggle-btn"
+              onClick={zoomIn}
+              disabled={viewMode === 'day'}
+              title="Zoom in"
+            >＋</button>
+            <span className="view-toggle-label">{viewMode}</span>
             <button
-              className={`view-toggle-btn${viewMode === 'week' ? ' active' : ''}`}
-              onClick={() => { userOverrodeViewRef.current = true; setViewMode('week'); }}
-              title="Week view"
-            >Week</button>
+              className="view-toggle-btn"
+              onClick={zoomOut}
+              disabled={viewMode === 'month'}
+              title="Zoom out"
+            >－</button>
           </div>
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
@@ -424,6 +439,71 @@ function App() {
       </header>
 
       <main className="calendar-container">
+        {/* ── Month view ────────────────────────────────────────────────────── */}
+        {viewMode === 'month' && (() => {
+          const { cells, bars } = getMonthViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
+          const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
+          const rowHeight = 60 + (maxBarOffset + 1) * 22;
+          return (
+            <div
+              className="month-row month-row--year"
+              style={{ minHeight: `${rowHeight}px` }}
+            >
+              <div className="month-label">{currentYear}</div>
+              {cells.map((cell, m) => {
+                const monthName = yearData[m].name;
+                return (
+                  <div key={m} className="month-overview-cell">
+                    <span className="month-overview-name">{monthName}</span>
+                    <div className="month-overview-indicators">
+                      {cell.indicators.map(ind => {
+                        const cat = categories.find(c => c.id === ind.categoryId);
+                        return (
+                          <div key={ind.categoryId} className="month-overview-ind-row">
+                            {ind.hasDot && (
+                              <div className="event-dot" style={{ backgroundColor: cat?.color }} title={cat?.name} />
+                            )}
+                            {ind.hasPill && (
+                              <div className="event-pill" style={{ backgroundColor: cat?.color }} title={cat?.name} />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              {bars.map(bar => {
+                const event = effectiveEvents.find(e => e.id === bar.eventId);
+                const category = categories.find(c => c.id === event?.categoryId);
+                return (
+                  <div
+                    key={bar.eventId}
+                    className="event-bar"
+                    style={{
+                      gridColumnStart: bar.startColumn,
+                      gridColumnEnd:   bar.endColumn,
+                      gridRow: 1,
+                      top: `${36 + bar.rowOffset * 22}px`,
+                      backgroundColor: category?.color,
+                    }}
+                    title={event?.name}
+                    onClick={() => { if (event) openEditEvent(event); }}
+                  >
+                    <span className="event-title">{event?.name}</span>
+                    {bar.isEndContinuation && (
+                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                    )}
+                    {bar.isStartContinuation && (
+                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
         {/* ── Week view ─────────────────────────────────────────────────────── */}
         {viewMode === 'week' && yearData.map((month) => {
           const { weeks, spans } = getWeekViewData(effectiveEvents, month.index, currentYear, visibleCategories, globalRowOffsets);
