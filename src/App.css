@@ -645,7 +645,6 @@ body.drag-active .event-bar {
   padding: 4px 6px 6px;
   display: flex;
   flex-direction: column;
-  min-height: 56px;
 }
 
 .month-overview-name {

@@ -443,7 +443,11 @@ function App() {
         {viewMode === 'month' && (() => {
           const { cells, bars } = getMonthViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
           const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-          const rowHeight = 60 + (maxBarOffset + 1) * 22;
+          // Push bars below the tallest indicators column:
+          // 4px top-padding + 16px month name + n * 11px (8px dot/pill + 3px gap) + 6px breathing room
+          const maxIndicatorRows = Math.max(0, ...cells.map(c => c.indicators.length));
+          const barsTopOffset = 4 + 16 + maxIndicatorRows * 11 + 6;
+          const rowHeight = barsTopOffset + (maxBarOffset + 1) * 22;
           return (
             <div
               className="month-row month-row--year"
@@ -484,7 +488,7 @@ function App() {
                       gridColumnStart: bar.startColumn,
                       gridColumnEnd:   bar.endColumn,
                       gridRow: 1,
-                      top: `${36 + bar.rowOffset * 22}px`,
+                      top: `${barsTopOffset + bar.rowOffset * 22}px`,
                       backgroundColor: category?.color,
                     }}
                     title={event?.name}
