@@ -70,6 +70,7 @@ function App() {
   // ── Drag state ──────────────────────────────────────────────────────────────
   const dragStateRef = useRef<{
     eventId: string;
+    calendarEvent: CalendarEvent;
     durationMs: number;
     clickOffsetDays: number;
     previewStart: Date | null;
@@ -281,7 +282,9 @@ function App() {
 
     const onMouseUp = () => {
       document.body.classList.remove('drag-active');
-      if (dragStateRef.current?.previewStart && dragStateRef.current?.previewEnd) {
+      if (!dragOccurredRef.current && dragStateRef.current) {
+        openEditEvent(dragStateRef.current.calendarEvent);
+      } else if (dragStateRef.current?.previewStart && dragStateRef.current?.previewEnd) {
         const { eventId, previewStart, previewEnd } = dragStateRef.current;
         setEvents(prev => prev.map(e =>
           e.id === eventId ? { ...e, start: previewStart!, end: previewEnd! } : e
@@ -332,7 +335,7 @@ function App() {
     );
 
     dragOccurredRef.current = false;
-    dragStateRef.current = { eventId: event.id, durationMs, clickOffsetDays, previewStart: null, previewEnd: null };
+    dragStateRef.current = { eventId: event.id, calendarEvent: event, durationMs, clickOffsetDays, previewStart: null, previewEnd: null };
     setDragEventId(event.id);
   };
 
@@ -483,11 +486,6 @@ function App() {
                     title={event?.name}
                     onMouseDown={(e) => {
                       if (event) handleBarMouseDown(e, event, span, month.index);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (dragOccurredRef.current) return;
-                      if (event) openEditEvent(event);
                     }}
                   >
                     <span className="event-title">{event?.name}</span>
