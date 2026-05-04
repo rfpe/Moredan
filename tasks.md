@@ -77,7 +77,7 @@
 - [ ] White-labeling — custom branding, logo, theme colors, fonts, default categories
 
 ### Data & Integration
-- [ ] Import from XLSX or CSV — client-side only via FileReader API; XLSX parsed with existing lazy-loaded ExcelJS dep; CSV parsed manually. Columns: Name, Start Date, End Date, Category, Color. Missing categories auto-created from Color column. Show row-count confirmation before committing. Merge strategy: append (no dedup).
+- [x] Import from XLSX — client-side FileReader + lazy ExcelJS; matches export schema; auto-creates missing categories; confirmation modal before appending.
 - [ ] iCal / .ics export for calendar app integration
 - [ ] Share / publish a read-only view via URL
 - [ ] Multi-year view — span events across year boundaries

@@ -139,6 +139,87 @@ function App() {
     localStorage.setItem('moredan_font_scale', String(fontScale));
   }, [fontScale]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importPreview, setImportPreview] = useState<{
+    events: CalendarEvent[];
+    newCategories: Array<{ id: string; name: string; color: string }>;
+  } | null>(null);
+
+  const handleImportXLSX = async (file: File) => {
+    const ExcelJS = (await import('exceljs')).default;
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(await file.arrayBuffer());
+    const ws = wb.worksheets[0];
+    if (!ws) return;
+
+    const newCatMap = new Map<string, string>(); // color -> id
+    const newCatList: Array<{ id: string; name: string; color: string }> = [];
+
+    const resolveCategory = (name: string, color: string): string => {
+      // Match existing category by name (case-insensitive)
+      const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+      if (existing) return existing.id;
+      // Match a newly created category for this import by color+name
+      const key = `${name}::${color}`;
+      if (newCatMap.has(key)) return newCatMap.get(key)!;
+      const id = Math.random().toString(36).substr(2, 9);
+      newCatMap.set(key, id);
+      newCatList.push({ id, name: name || 'Uncategorized', color: color || '#94a3b8' });
+      return id;
+    };
+
+    const importedEvents: CalendarEvent[] = [];
+    ws.eachRow((row, rowNum) => {
+      if (rowNum === 1) return; // skip header
+      const name      = String(row.getCell(1).value ?? '').trim();
+      const startRaw  = row.getCell(2).value;
+      const endRaw    = row.getCell(3).value;
+      const catName   = String(row.getCell(4).value ?? '').trim();
+      const catColor  = String(row.getCell(5).value ?? '#94a3b8').trim();
+      if (!name) return;
+      // ExcelJS Date objects are UTC midnight; extract UTC parts to avoid
+      // local-timezone day shift. String dates like "2026-05-15" are also
+      // parsed as UTC by new Date(), so same treatment applies.
+      const parseXlsxDate = (raw: unknown): Date | null => {
+        let d: Date;
+        if (raw instanceof Date) {
+          d = new Date(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate());
+        } else {
+          const str = String(raw).trim();
+          const parts = str.split('-').map(Number);
+          if (parts.length === 3 && parts.every(n => !isNaN(n))) {
+            d = new Date(parts[0], parts[1] - 1, parts[2]);
+          } else {
+            d = new Date(str);
+            if (isNaN(d.getTime())) return null;
+            d = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+          }
+        }
+        d.setHours(0, 0, 0, 0);
+        return d;
+      };
+      const start = parseXlsxDate(startRaw);
+      const end   = parseXlsxDate(endRaw);
+      if (!start || !end) return;
+      const categoryId = resolveCategory(catName, catColor);
+      importedEvents.push({ id: Math.random().toString(36).substr(2, 9), name, start, end, categoryId });
+    });
+
+    if (importedEvents.length === 0) return;
+    setImportPreview({ events: importedEvents, newCategories: newCatList });
+  };
+
+  const commitImport = () => {
+    if (!importPreview) return;
+    const { events: newEvents, newCategories } = importPreview;
+    if (newCategories.length > 0) {
+      setCategories(prev => [...prev, ...newCategories]);
+      setVisibleCategories(prev => new Set([...prev, ...newCategories.map(c => c.id)]));
+    }
+    setEvents(prev => [...prev, ...newEvents]);
+    setImportPreview(null);
+  };
+
   const [cellOverlay, setCellOverlay] = useState<{
     label: string;
     events: CalendarEvent[];
@@ -205,6 +286,10 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
+  // Format a Date using local calendar date, avoiding UTC-offset day shift.
+  const localDateStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
   const handleExportXLSX = async () => {
     const ExcelJS = (await import('exceljs')).default;
     const wb = new ExcelJS.Workbook();
@@ -220,8 +305,8 @@ function App() {
       const cat = categories.find(c => c.id === e.categoryId);
       ws.addRow({
         name:     e.name,
-        start:    e.start.toISOString().split('T')[0],
-        end:      e.end.toISOString().split('T')[0],
+        start:    localDateStr(e.start),
+        end:      localDateStr(e.end),
         category: cat?.name ?? '',
         color:    cat?.color ?? '',
       });
@@ -577,7 +662,19 @@ function App() {
           }}>Today</button>
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
+          <button className="secondary-btn" onClick={() => fileInputRef.current?.click()}>{t.importXlsx}</button>
           <button className="secondary-btn" onClick={handleExportXLSX}>{t.exportXlsx}</button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx"
+            style={{ display: 'none' }}
+            onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) handleImportXLSX(file);
+              e.target.value = '';
+            }}
+          />
           <button className="icon-btn" onClick={() => setIsSettingsModalOpen(true)} title={t.settings}>⚙</button>
         </div>
       </header>
@@ -930,6 +1027,38 @@ function App() {
           onCancel={() => setIsCategoryModalOpen(false)}
           t={t}
         />
+      </Modal>
+
+      <Modal
+        isOpen={!!importPreview}
+        onClose={() => setImportPreview(null)}
+        title="Import Events"
+      >
+        {importPreview && (
+          <div className="import-preview">
+            <p className="import-preview-summary">
+              Found <strong>{importPreview.events.length}</strong> event{importPreview.events.length !== 1 ? 's' : ''}.
+              {importPreview.newCategories.length > 0 && (
+                <> Will create <strong>{importPreview.newCategories.length}</strong> new categor{importPreview.newCategories.length !== 1 ? 'ies' : 'y'}:</>
+              )}
+            </p>
+            {importPreview.newCategories.length > 0 && (
+              <ul className="import-preview-cats">
+                {importPreview.newCategories.map(c => (
+                  <li key={c.id}>
+                    <span className="color-dot" style={{ backgroundColor: c.color }} />
+                    {c.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="import-preview-hint">Events will be appended to your calendar.</p>
+            <div className="form-actions">
+              <button className="primary-btn" onClick={commitImport}>Import</button>
+              <button className="secondary-btn" onClick={() => setImportPreview(null)}>Cancel</button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
