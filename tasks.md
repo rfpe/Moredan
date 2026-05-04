@@ -61,7 +61,8 @@
 
 ### Calendar Intelligence
 - [x] Cell summary — click a cell to see all events in that period; adapts to zoom level (day / week / month)
-- [ ] Today highlight — visually mark the current day column
+- [x] Today highlight + navigate — "Today" button in header: switches to day view, sets year, scrolls to and highlights today's cell
+- [x] Multi-year month view — in month view, auto-show prev/next year rows; each row has an individual hide toggle
 - [ ] Recurring events — define events that repeat (daily, weekly, monthly, yearly)
 - [ ] Event dependencies — link events with an arrow to show sequencing
 

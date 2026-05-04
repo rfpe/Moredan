@@ -336,6 +336,18 @@
   background-color: #f1f5f9;
 }
 
+.day-cell--today {
+  background-color: #eff6ff;
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.day-cell--today .day-number {
+  color: #2563eb;
+  font-weight: 700;
+}
+
 .day-number {
   font-size: calc(0.65rem * var(--font-scale));
   font-weight: 600;
@@ -690,6 +702,48 @@ body.drag-active .event-bar {
   font-weight: 600;
   color: #475569;
   margin-bottom: 4px;
+}
+
+.month-label--year {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6px;
+  gap: 4px;
+}
+
+.year-row-toggle {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 1px 5px;
+  line-height: 1.4;
+  transition: background 0.12s, color 0.12s;
+}
+
+.year-row-toggle:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.month-row--year-collapsed {
+  grid-template-columns: 60px 1fr;
+  min-height: 28px !important;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.month-label--collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  font-size: calc(0.75rem * var(--font-scale));
+  color: #94a3b8;
 }
 
 .month-overview-indicators {
