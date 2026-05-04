@@ -44,8 +44,8 @@
 ---
 
 ## Open: Missing / Incomplete Features
-- [ ] Edit category — rename and change color of an existing category
-- [ ] Delete category — remove a category and reassign or remove its events
+- [x] Edit category — inline rename and color change in manage modal
+- [x] Delete category — inline confirm: delete events or reassign to Uncategorized
 - [ ] Resize event bars by dragging start/end edges (change duration directly on the grid)
 - [ ] Keyboard accessibility — navigate cells and open forms without a mouse
 
@@ -85,4 +85,4 @@
 ---
 
 ## Pending Decisions
-- [ ] Category deletion behavior: hard delete events, or reassign to "Uncategorized"?
+- [x] Category deletion behavior: user chooses at delete time — hard delete or reassign to Uncategorized
