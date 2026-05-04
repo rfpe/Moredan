@@ -115,6 +115,282 @@ export const computeGlobalRowOffsets = (
   return result;
 };
 
+// Returns the Monday of the ISO week containing `date`.
+const isoWeekMonday = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay() || 7; // Mon=1 … Sun=7
+  d.setDate(d.getDate() - (day - 1));
+  return d;
+};
+
+export interface WeekCell {
+  // ISO week number
+  isoWeek: number;
+  // Monday of this ISO week
+  weekStart: Date;
+  // Sunday of this ISO week
+  weekEnd: Date;
+  // Column index within the month row (1-based, after the label column)
+  column: number;
+}
+
+export interface WeekEventBar {
+  kind: 'bar';
+  eventId: string;
+  startColumn: number;
+  endColumn: number;
+  rowOffset: number;
+  isStartContinuation: boolean;
+  isEndContinuation: boolean;
+}
+
+export interface WeekEventDot {
+  kind: 'dot';
+  eventId: string;
+  column: number;
+  dotIndex: number;
+}
+
+export type WeekEventSpan = WeekEventBar | WeekEventDot;
+
+export interface WeekViewMonth {
+  weeks: WeekCell[];
+  spans: WeekEventSpan[];
+}
+
+// Returns up to 6 ISO weeks that overlap the given month, plus event spans.
+export const getWeekViewData = (
+  events: any[],
+  monthIndex: number,
+  year: number,
+  visibleCategoryIds: Set<string>,
+  globalRowOffsets: Map<string, number> = new Map()
+): WeekViewMonth => {
+  const monthStart = new Date(year, monthIndex, 1);
+  const monthEnd   = new Date(year, monthIndex + 1, 0);
+
+  // Collect all ISO week Mondays that overlap this month
+  const weeks: WeekCell[] = [];
+  let cursor = isoWeekMonday(monthStart);
+  while (cursor <= monthEnd) {
+    const weekEnd = new Date(cursor);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    weeks.push({
+      isoWeek:   getISOWeekNumber(cursor),
+      weekStart: new Date(cursor),
+      weekEnd,
+      column:    weeks.length + 2, // +2: col 1 = label, cols 2+ = weeks
+    });
+    cursor = new Date(cursor);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  // For each event, determine its presence in this month at week granularity
+  const bars: Omit<WeekEventBar, 'rowOffset'>[] = [];
+  const dotsByColumn = new Map<number, string[]>(); // column → eventIds
+
+  events.forEach(event => {
+    if (!visibleCategoryIds.has(event.categoryId)) return;
+
+    const eStart = new Date(event.start); eStart.setHours(0, 0, 0, 0);
+    const eEnd   = new Date(event.end);   eEnd.setHours(0, 0, 0, 0);
+
+    if (eStart > monthEnd || eEnd < monthStart) return;
+
+    // Which week cells does this event touch within this month?
+    const touchedWeeks = weeks.filter(w => eStart <= w.weekEnd && eEnd >= w.weekStart);
+    if (touchedWeeks.length === 0) return;
+
+    // Sub-week event (fits entirely within one week cell) → dot
+    if (touchedWeeks.length === 1) {
+      const col = touchedWeeks[0].column;
+      if (!dotsByColumn.has(col)) dotsByColumn.set(col, []);
+      dotsByColumn.get(col)!.push(event.id);
+      return;
+    }
+
+    // Multi-week → bar
+    const startCol = touchedWeeks[0].column;
+    const endCol   = touchedWeeks[touchedWeeks.length - 1].column + 1; // exclusive
+
+    bars.push({
+      kind: 'bar',
+      eventId: event.id,
+      startColumn: startCol,
+      endColumn:   endCol,
+      isStartContinuation: eStart < monthStart,
+      isEndContinuation:   eEnd   > monthEnd,
+    });
+  });
+
+  // Greedy stacking for bars (same pattern as getMonthSpans)
+  const positionedBars: WeekEventBar[] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
+
+  const globalBars = bars.filter(b => globalRowOffsets.has(b.eventId));
+  const localBars  = bars.filter(b => !globalRowOffsets.has(b.eventId));
+
+  globalBars.forEach(bar => {
+    const rowIndex = globalRowOffsets.get(bar.eventId)!;
+    if (!rows[rowIndex]) rows[rowIndex] = [];
+    rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+    positionedBars.push({ ...bar, rowOffset: rowIndex });
+  });
+
+  [...localBars]
+    .sort((a, b) => a.startColumn !== b.startColumn
+      ? a.startColumn - b.startColumn
+      : (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn))
+    .forEach(bar => {
+      let rowIndex = 0;
+      while (true) {
+        if (!rows[rowIndex]) rows[rowIndex] = [];
+        const conflict = rows[rowIndex].some(
+          r => bar.startColumn < r.end && bar.endColumn > r.start
+        );
+        if (!conflict) {
+          rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+          positionedBars.push({ ...bar, rowOffset: rowIndex });
+          break;
+        }
+        rowIndex++;
+      }
+    });
+
+  // Build dot spans with per-column index for vertical stacking
+  const dots: WeekEventDot[] = [];
+  dotsByColumn.forEach((eventIds, column) => {
+    eventIds.forEach((eventId, i) => {
+      dots.push({ kind: 'dot', eventId, column, dotIndex: i });
+    });
+  });
+
+  return { weeks, spans: [...positionedBars, ...dots] };
+};
+
+export interface MonthViewBar {
+  kind: 'bar';
+  eventId: string;
+  startColumn: number; // 1-based month column (Jan=1 … Dec=12), offset by label col
+  endColumn: number;   // exclusive
+  rowOffset: number;
+  isStartContinuation: boolean;
+  isEndContinuation: boolean;
+}
+
+export interface MonthViewIndicator {
+  // Per-category summary inside a single month cell
+  categoryId: string;
+  hasDot:  boolean; // any event < 7 days in this month
+  hasPill: boolean; // any event ≥ 7 days that doesn't cross month boundary
+}
+
+export interface MonthViewData {
+  // One entry per month (index 0–11)
+  cells: Array<{ indicators: MonthViewIndicator[] }>;
+  bars: MonthViewBar[];
+}
+
+export const getMonthViewData = (
+  events: any[],
+  year: number,
+  visibleCategoryIds: Set<string>,
+  globalRowOffsets: Map<string, number> = new Map()
+): MonthViewData => {
+  const cells: Array<{ indicators: MonthViewIndicator[] }> = Array.from({ length: 12 }, () => ({ indicators: [] }));
+
+  // Per-month, per-category accumulator
+  const dotCategories:  Array<Set<string>> = Array.from({ length: 12 }, () => new Set());
+  const pillCategories: Array<Set<string>> = Array.from({ length: 12 }, () => new Set());
+  const barCandidates: Omit<MonthViewBar, 'rowOffset'>[] = [];
+
+  events.forEach(event => {
+    if (!visibleCategoryIds.has(event.categoryId)) return;
+
+    const eStart = new Date(event.start); eStart.setHours(0, 0, 0, 0);
+    const eEnd   = new Date(event.end);   eEnd.setHours(0, 0, 0, 0);
+
+    const durationDays = Math.round((eEnd.getTime() - eStart.getTime()) / 86400000);
+    const crossesMonthBoundary = eStart.getMonth() !== eEnd.getMonth() || eStart.getFullYear() !== eEnd.getFullYear();
+
+    if (crossesMonthBoundary) {
+      // Multi-month → bar spanning month columns
+      // Clamp to the current year
+      const yearStart = new Date(year, 0, 1);
+      const yearEnd   = new Date(year, 11, 31);
+      if (eStart > yearEnd || eEnd < yearStart) return;
+
+      const startMonth = eStart < yearStart ? 0 : eStart.getMonth();
+      const endMonth   = eEnd   > yearEnd   ? 11 : eEnd.getMonth();
+
+      barCandidates.push({
+        kind: 'bar',
+        eventId: event.id,
+        startColumn: startMonth + 2, // +2: col 1 = label
+        endColumn:   endMonth   + 3, // exclusive
+        isStartContinuation: eStart < yearStart,
+        isEndContinuation:   eEnd   > yearEnd,
+      });
+    } else {
+      // Single-month — determine which month and whether dot or pill
+      if (eStart.getFullYear() !== year) return;
+      const m = eStart.getMonth();
+      if (durationDays < 7) {
+        dotCategories[m].add(event.categoryId);
+      } else {
+        pillCategories[m].add(event.categoryId);
+      }
+    }
+  });
+
+  // Build per-cell indicator lists (union of dot + pill category sets)
+  for (let m = 0; m < 12; m++) {
+    const allCats = new Set([...dotCategories[m], ...pillCategories[m]]);
+    allCats.forEach(catId => {
+      cells[m].indicators.push({
+        categoryId: catId,
+        hasDot:  dotCategories[m].has(catId),
+        hasPill: pillCategories[m].has(catId),
+      });
+    });
+  }
+
+  // Greedy stacking for bars
+  const bars: MonthViewBar[] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
+
+  const globalBars = barCandidates.filter(b => globalRowOffsets.has(b.eventId));
+  const localBars  = barCandidates.filter(b => !globalRowOffsets.has(b.eventId));
+
+  globalBars.forEach(bar => {
+    const rowIndex = globalRowOffsets.get(bar.eventId)!;
+    if (!rows[rowIndex]) rows[rowIndex] = [];
+    rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+    bars.push({ ...bar, rowOffset: rowIndex });
+  });
+
+  [...localBars]
+    .sort((a, b) => a.startColumn !== b.startColumn
+      ? a.startColumn - b.startColumn
+      : (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn))
+    .forEach(bar => {
+      let rowIndex = 0;
+      while (true) {
+        if (!rows[rowIndex]) rows[rowIndex] = [];
+        const conflict = rows[rowIndex].some(r => bar.startColumn < r.end && bar.endColumn > r.start);
+        if (!conflict) {
+          rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+          bars.push({ ...bar, rowOffset: rowIndex });
+          break;
+        }
+        rowIndex++;
+      }
+    });
+
+  return { cells, bars };
+};
+
 export const getMonthSpans = (
   events: any[],
   monthIndex: number,
