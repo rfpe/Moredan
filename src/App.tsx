@@ -96,7 +96,7 @@ function App() {
     );
   }, [events, dragPreview]);
 
-  const VIEW_MODES = ['day', 'week', 'month'] as const;
+  const VIEW_MODES = ['day', 'week', 'month', 'vertical'] as const;
   type ViewMode = typeof VIEW_MODES[number];
 
   const [viewMode, setViewMode] = useState<ViewMode>(() =>
@@ -117,6 +117,60 @@ function App() {
     const idx = VIEW_MODES.indexOf(viewMode);
     if (idx < VIEW_MODES.length - 1) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx + 1]); }
   };
+
+  // ── Vertical layout spans ────────────────────────────────────────────────
+  type VerticalSpan = {
+    eventId: string;
+    monthIndex: number;
+    dayStart: number;
+    dayEnd: number;
+    stackCol: number;
+    isStartCont: boolean;
+    isEndCont: boolean;
+  };
+
+  const verticalSpans = useMemo((): VerticalSpan[] => {
+    if (viewMode !== 'vertical') return [];
+    const result: VerticalSpan[] = [];
+    for (let m = 0; m < 12; m++) {
+      const monthStart = new Date(currentYear, m, 1);
+      monthStart.setHours(0, 0, 0, 0);
+      const daysInMonth = new Date(currentYear, m + 1, 0).getDate();
+      const monthEnd = new Date(currentYear, m, daysInMonth);
+      monthEnd.setHours(23, 59, 59, 999);
+
+      const monthEvents = effectiveEvents
+        .filter(e => {
+          if (!visibleCategories.has(e.categoryId)) return false;
+          const s = new Date(e.start); s.setHours(0, 0, 0, 0);
+          const en = new Date(e.end); en.setHours(23, 59, 59, 999);
+          return s <= monthEnd && en >= monthStart;
+        })
+        .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+      const slots: { dayStart: number; dayEnd: number }[][] = [];
+
+      for (const event of monthEvents) {
+        const s = new Date(event.start); s.setHours(0, 0, 0, 0);
+        const en = new Date(event.end); en.setHours(0, 0, 0, 0);
+        const isStartCont = s < monthStart;
+        const isEndCont = en > monthEnd;
+        const dayStart = isStartCont ? 1 : s.getDate();
+        const dayEnd = isEndCont ? daysInMonth : en.getDate();
+
+        let stackCol = 0;
+        while (true) {
+          if (!slots[stackCol]) { slots[stackCol] = []; break; }
+          if (!slots[stackCol].some(sl => dayStart <= sl.dayEnd && dayEnd >= sl.dayStart)) break;
+          stackCol++;
+        }
+        slots[stackCol] ??= [];
+        slots[stackCol].push({ dayStart, dayEnd });
+        result.push({ eventId: event.id, monthIndex: m, dayStart, dayEnd, stackCol, isStartCont, isEndCont });
+      }
+    }
+    return result;
+  }, [effectiveEvents, visibleCategories, currentYear, viewMode]);
 
   const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
   const scrollToTodayRef = useRef(false);
@@ -612,16 +666,12 @@ function App() {
             <button
               type="button"
               className="category-bulk-btn"
-              onClick={() => setVisibleCategories(new Set(categories.map(c => c.id)))}
+              onClick={() => {
+                const allVisible = categories.every(c => visibleCategories.has(c.id));
+                setVisibleCategories(allVisible ? new Set() : new Set(categories.map(c => c.id)));
+              }}
             >
-              {t.all}
-            </button>
-            <button
-              type="button"
-              className="category-bulk-btn"
-              onClick={() => setVisibleCategories(new Set())}
-            >
-              {t.none}
+              {categories.every(c => visibleCategories.has(c.id)) ? t.none : t.all}
             </button>
           </div>
         </div>
@@ -650,7 +700,7 @@ function App() {
             <button
               className="view-toggle-btn"
               onClick={zoomOut}
-              disabled={viewMode === 'month'}
+              disabled={viewMode === 'vertical'}
               title="Zoom out"
             >－</button>
           </div>
@@ -963,6 +1013,90 @@ function App() {
             </div>
           );
         })}
+        {/* ── Vertical layout ───────────────────────────────────────────────── */}
+        {viewMode === 'vertical' && (() => {
+          const CELL_H = 26;
+          const BAR_W  = 88;
+          const BAR_GAP = 3;
+
+          const maxStack = Array.from({ length: 12 }, (_, m) => {
+            const mSpans = verticalSpans.filter(s => s.monthIndex === m);
+            return mSpans.length > 0 ? Math.max(...mSpans.map(s => s.stackCol)) + 1 : 1;
+          });
+
+          return (
+            <div className="vertical-layout">
+              {/* Sticky day-label column */}
+              <div className="vertical-day-col">
+                <div className="vertical-month-header" />
+                {Array.from({ length: 31 }, (_, i) => (
+                  <div key={i} className="vertical-day-label" style={{ height: CELL_H }}>{i + 1}</div>
+                ))}
+              </div>
+
+              {yearData.map((month, m) => {
+                const daysInMonth = new Date(currentYear, m + 1, 0).getDate();
+                const colWidth = maxStack[m] * (BAR_W + BAR_GAP);
+                const mSpans = verticalSpans.filter(s => s.monthIndex === m);
+
+                return (
+                  <div key={m} className="vertical-month" style={{ width: colWidth }}>
+                    <div className="vertical-month-header">{month.name}</div>
+                    <div className="vertical-month-body" style={{ height: 31 * CELL_H }}>
+                      {Array.from({ length: 31 }, (_, i) => {
+                        const day = i + 1;
+                        const valid = day <= daysInMonth;
+                        const date = valid ? new Date(currentYear, m, day) : null;
+                        const isToday = date
+                          && currentYear === today.getFullYear()
+                          && m === today.getMonth()
+                          && day === today.getDate();
+                        const isWeekend = date && (date.getDay() === 0 || date.getDay() === 6);
+                        return (
+                          <div
+                            key={i}
+                            className={[
+                              'vertical-day-cell',
+                              !valid        ? 'vertical-day-cell--filler' : '',
+                              isToday       ? 'day-cell--today' : '',
+                              isWeekend     ? 'weekend' : '',
+                            ].filter(Boolean).join(' ')}
+                            style={{ top: i * CELL_H, height: CELL_H }}
+                            data-month={m}
+                            data-day={day}
+                            onClick={valid ? e => handleDayCellClick(m, day, e.currentTarget) : undefined}
+                          />
+                        );
+                      })}
+
+                      {mSpans.map(span => {
+                        const event = effectiveEvents.find(e => e.id === span.eventId);
+                        const category = categories.find(c => c.id === event?.categoryId);
+                        return (
+                          <div
+                            key={`${m}-${span.eventId}`}
+                            className="vertical-event-bar"
+                            style={{
+                              top:    (span.dayStart - 1) * CELL_H + 1,
+                              height: (span.dayEnd - span.dayStart + 1) * CELL_H - 2,
+                              left:   span.stackCol * (BAR_W + BAR_GAP),
+                              width:  BAR_W,
+                              backgroundColor: category?.color,
+                            }}
+                            title={event?.name}
+                            onClick={() => { if (event) openEditEvent(event); }}
+                          >
+                            <span className="vertical-event-title">{event?.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </main>
 
       {cellOverlay && (

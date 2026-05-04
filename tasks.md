@@ -56,7 +56,16 @@
 ### Layout Variants
 - [x] Zoom: week view — ISO week cells per row; sub-week events as dots, multi-week as bars; auto-activates on mobile
 - [x] Zoom: month view — single row × 12 month cells; dot/pill indicators per category; multi-month events as bars
-- [ ] Vertical layout — months as columns, days as rows (transpose of current layout)
+- [~] Vertical layout — months as columns, days as rows; each month is a separate render branch; stacking pushes events sideways (busy months are wider by design)
+  - [x] Grid structure: sticky day-label column + 12 month columns, 31 day rows
+  - [x] Greedy horizontal stacking per month column
+  - [x] Click day cell → CellOverlay / Add Event (reuses existing handlers)
+  - [x] Weekend highlight, today highlight, filler cells for short months
+  - [x] Integrated into view-mode zoom toggle (after month)
+  - [ ] Polish: snake nubs at top/bottom of bars for multi-month events
+  - [ ] Polish: drag-and-drop support in vertical view
+  - [ ] Polish: today scroll / navigate in vertical view
+  - [ ] Polish: week numbers in vertical view
 - [ ] Mobile UI/UX — touch-friendly layout and interactions for small screens
 
 ### Calendar Intelligence
@@ -67,6 +76,8 @@
 - [ ] Event dependencies — link events with an arrow to show sequencing
 
 ### Visuals & Polish
+- [ ] Week number in day zoom is too small — consider moving it above the cell (vertical space is available)
+- [ ] Header button styling inconsistency — "A-/A+", "+ Month -", "All/None", and "Settings" use different styles than "Today", "Add Event", "Category", "Import", "Download"; standardize across all header controls
 - [ ] Advanced S-curve snaking connectors (replaces current nubs)
 - [ ] Hover on snaking connector highlights entire event across all months
 - [ ] Event color customization per event (override category color)
