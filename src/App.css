@@ -665,3 +665,135 @@ body.drag-active .event-bar {
   align-items: center;
   gap: 3px;
 }
+
+/* ── Cell overlay ────────────────────────────────────────────────────────── */
+.cell-overlay {
+  position: fixed;
+  z-index: 200;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 220px;
+  max-width: 300px;
+}
+
+.cell-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cell-overlay-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cell-overlay-close {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.cell-overlay-close:hover {
+  color: #475569;
+}
+
+.cell-overlay-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.cell-overlay-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+}
+
+.cell-overlay-item:hover {
+  background: #f8fafc;
+}
+
+.cell-overlay-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cell-overlay-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cell-overlay-name {
+  font-size: 0.8rem;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell-overlay-dates {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.cell-overlay-edit {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.cell-overlay-edit:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.cell-overlay-empty {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 10px;
+  margin: 0;
+}
+
+.cell-overlay-footer {
+  padding: 6px 10px 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cell-overlay-add {
+  width: 100%;
+  background: none;
+  border: 1px dashed #cbd5e1;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cell-overlay-add:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}

@@ -60,7 +60,7 @@
 - [ ] Mobile UI/UX — touch-friendly layout and interactions for small screens
 
 ### Calendar Intelligence
-- [ ] Cell summary — click/hover a cell to see all events in that period; adapts to zoom level (day / week / month)
+- [x] Cell summary — click a cell to see all events in that period; adapts to zoom level (day / week / month)
 - [ ] Today highlight — visually mark the current day column
 - [ ] Recurring events — define events that repeat (daily, weekly, monthly, yearly)
 - [ ] Event dependencies — link events with an arrow to show sequencing
