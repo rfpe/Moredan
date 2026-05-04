@@ -29,7 +29,9 @@ function App() {
   });
 
   const weekStart = useMemo(() => getWeekStart(locale), [locale]);
-  const yearData = useMemo(() => generateYearData(currentYear, locale), [currentYear, locale]);
+  const yearData     = useMemo(() => generateYearData(currentYear,     locale), [currentYear, locale]);
+  const prevYearData = useMemo(() => generateYearData(currentYear - 1, locale), [currentYear, locale]);
+  const nextYearData = useMemo(() => generateYearData(currentYear + 1, locale), [currentYear, locale]);
   const t = useMemo(() => getTranslations(locale), [locale]);
 
   const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
@@ -115,6 +117,20 @@ function App() {
     const idx = VIEW_MODES.indexOf(viewMode);
     if (idx < VIEW_MODES.length - 1) { userOverrodeViewRef.current = true; setViewMode(VIEW_MODES[idx + 1]); }
   };
+
+  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
+  const scrollToTodayRef = useRef(false);
+  useEffect(() => {
+    if (!scrollToTodayRef.current) return;
+    scrollToTodayRef.current = false;
+    const cell = document.querySelector(
+      `[data-month="${today.getMonth()}"][data-day="${today.getDate()}"]`
+    ) as HTMLElement | null;
+    cell?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [viewMode, currentYear, today]);
+
+  const [showPrevYear, setShowPrevYear] = useState(true);
+  const [showNextYear, setShowNextYear] = useState(true);
 
   const [fontScale, setFontScale] = useState<number>(() =>
     parseFloat(localStorage.getItem('moredan_font_scale') ?? '1')
@@ -510,6 +526,12 @@ function App() {
               title="Zoom out"
             >－</button>
           </div>
+          <button className="secondary-btn" onClick={() => {
+            userOverrodeViewRef.current = true;
+            setViewMode('day');
+            setCurrentYear(today.getFullYear());
+            scrollToTodayRef.current = true;
+          }}>Today</button>
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
           <button className="secondary-btn" onClick={handleExportXLSX}>{t.exportXlsx}</button>
@@ -520,70 +542,99 @@ function App() {
       <main className="calendar-container" style={{ '--font-scale': fontScale } as React.CSSProperties}>
         {/* ── Month view ────────────────────────────────────────────────────── */}
         {viewMode === 'month' && (() => {
-          const { cells, bars } = getMonthViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
-          const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-          // Push bars below the tallest indicators column:
-          // 4px top-padding + 16px month name + n * 11px (8px dot/pill + 3px gap) + 6px breathing room
-          const maxIndicatorRows = Math.max(0, ...cells.map(c => c.indicators.length));
-          const barsTopOffset = 4 + 16 + maxIndicatorRows * 11 + 6;
-          const rowHeight = barsTopOffset + (maxBarOffset + 1) * 22;
-          return (
-            <div
-              className="month-row month-row--year"
-              style={{ minHeight: `${rowHeight}px` }}
-            >
-              <div className="month-label">{currentYear}</div>
-              {cells.map((cell, m) => {
-                const monthName = yearData[m].name;
-                return (
-                  <div key={m} className="month-overview-cell" onClick={(e) => handleMonthCellClick(m, e.currentTarget)}>
-                    <span className="month-overview-name">{monthName}</span>
-                    <div className="month-overview-indicators">
-                      {cell.indicators.map(ind => {
-                        const cat = categories.find(c => c.id === ind.categoryId);
-                        return (
-                          <div key={ind.categoryId} className="month-overview-ind-row">
-                            {ind.hasDot && (
-                              <div className="event-dot" style={{ backgroundColor: cat?.color }} title={cat?.name} />
-                            )}
-                            {ind.hasPill && (
-                              <div className="event-pill" style={{ backgroundColor: cat?.color }} title={cat?.name} />
-                            )}
-                          </div>
-                        );
-                      })}
+          const renderYearRow = (
+            year: number,
+            yData: typeof yearData,
+            isCollapsed: boolean,
+            onToggle: (() => void) | null
+          ) => {
+            if (isCollapsed) {
+              return (
+                <div key={year} className="month-row month-row--year-collapsed">
+                  <div className="month-label month-label--collapsed">
+                    <span>{year}</span>
+                    <button className="year-row-toggle" onClick={onToggle!} title="Show year">+</button>
+                  </div>
+                </div>
+              );
+            }
+            const { cells, bars } = getMonthViewData(effectiveEvents, year, visibleCategories, globalRowOffsets);
+            const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
+            const maxIndicatorRows = Math.max(0, ...cells.map(c => c.indicators.length));
+            const barsTopOffset = 4 + 16 + maxIndicatorRows * 11 + 6;
+            const rowHeight = barsTopOffset + (maxBarOffset + 1) * 22;
+            return (
+              <div
+                key={year}
+                className="month-row month-row--year"
+                style={{ minHeight: `${rowHeight}px` }}
+              >
+                <div className="month-label month-label--year">
+                  <span>{year}</span>
+                  {onToggle && (
+                    <button className="year-row-toggle" onClick={onToggle} title="Hide year">×</button>
+                  )}
+                </div>
+                {cells.map((cell, m) => {
+                  const monthName = yData[m].name;
+                  return (
+                    <div key={m} className="month-overview-cell" onClick={(e) => handleMonthCellClick(m, e.currentTarget)}>
+                      <span className="month-overview-name">{monthName}</span>
+                      <div className="month-overview-indicators">
+                        {cell.indicators.map(ind => {
+                          const cat = categories.find(c => c.id === ind.categoryId);
+                          return (
+                            <div key={ind.categoryId} className="month-overview-ind-row">
+                              {ind.hasDot && (
+                                <div className="event-dot" style={{ backgroundColor: cat?.color }} title={cat?.name} />
+                              )}
+                              {ind.hasPill && (
+                                <div className="event-pill" style={{ backgroundColor: cat?.color }} title={cat?.name} />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-              {bars.map(bar => {
-                const event = effectiveEvents.find(e => e.id === bar.eventId);
-                const category = categories.find(c => c.id === event?.categoryId);
-                return (
-                  <div
-                    key={bar.eventId}
-                    className="event-bar"
-                    style={{
-                      gridColumnStart: bar.startColumn,
-                      gridColumnEnd:   bar.endColumn,
-                      gridRow: 1,
-                      top: `${barsTopOffset + bar.rowOffset * 22}px`,
-                      backgroundColor: category?.color,
-                    }}
-                    title={event?.name}
-                    onClick={() => { if (event) openEditEvent(event); }}
-                  >
-                    <span className="event-title">{event?.name}</span>
-                    {bar.isEndContinuation && (
-                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
-                    )}
-                    {bar.isStartContinuation && (
-                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+                {bars.map(bar => {
+                  const event = effectiveEvents.find(e => e.id === bar.eventId);
+                  const category = categories.find(c => c.id === event?.categoryId);
+                  return (
+                    <div
+                      key={bar.eventId}
+                      className="event-bar"
+                      style={{
+                        gridColumnStart: bar.startColumn,
+                        gridColumnEnd:   bar.endColumn,
+                        gridRow: 1,
+                        top: `${barsTopOffset + bar.rowOffset * 22}px`,
+                        backgroundColor: category?.color,
+                      }}
+                      title={event?.name}
+                      onClick={() => { if (event) openEditEvent(event); }}
+                    >
+                      <span className="event-title">{event?.name}</span>
+                      {bar.isEndContinuation && (
+                        <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                      )}
+                      {bar.isStartContinuation && (
+                        <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          };
+
+          return (
+            <>
+              {renderYearRow(currentYear - 1, prevYearData, !showPrevYear, () => setShowPrevYear(v => !v))}
+              {renderYearRow(currentYear,     yearData,     false,         null)}
+              {renderYearRow(currentYear + 1, nextYearData, !showNextYear, () => setShowNextYear(v => !v))}
+            </>
           );
         })()}
 
@@ -715,10 +766,13 @@ function App() {
                 const date = new Date(currentYear, month.index, day.dayNumber);
                 const isWeekStart = date.getDay() === weekStart;
                 const weekNum = showWeekNumbers && isWeekStart ? getISOWeekNumber(date) : null;
+                const isToday = currentYear === today.getFullYear()
+                  && month.index === today.getMonth()
+                  && day.dayNumber === today.getDate();
                 return (
                   <div
                     key={day.dayNumber}
-                    className={`day-cell ${day.isWeekend ? 'weekend' : ''}`}
+                    className={`day-cell${day.isWeekend ? ' weekend' : ''}${isToday ? ' day-cell--today' : ''}`}
                     data-month={month.index}
                     data-day={day.dayNumber}
                     onClick={(e) => handleDayCellClick(month.index, day.dayNumber, e.currentTarget)}
