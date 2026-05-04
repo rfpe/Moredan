@@ -54,7 +54,8 @@
 ## Open: Roadmap
 
 ### Layout Variants
-- [ ] Bird's eye view — zoom levels: weeks as cells per row, then months as cells per row
+- [x] Zoom: week view — ISO week cells per row; sub-week events as dots, multi-week as bars; auto-activates on mobile
+- [ ] Zoom: month view — one cell per month per row (12 cells); next zoom-out level after week view
 - [ ] Vertical layout — months as columns, days as rows (transpose of current layout)
 - [ ] Mobile UI/UX — touch-friendly layout and interactions for small screens
 

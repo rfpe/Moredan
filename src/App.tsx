@@ -93,7 +93,15 @@ function App() {
     );
   }, [events, dragPreview]);
 
-  const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const [viewMode, setViewMode] = useState<'day' | 'week'>(() =>
+    window.innerWidth <= 768 ? 'week' : 'day'
+  );
+  const userOverrodeViewRef = useRef(false);
+
+  useEffect(() => {
+    if (userOverrodeViewRef.current) return;
+    setViewMode(windowWidth <= 768 ? 'week' : 'day');
+  }, [windowWidth]);
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -399,12 +407,12 @@ function App() {
           <div className="view-toggle">
             <button
               className={`view-toggle-btn${viewMode === 'day' ? ' active' : ''}`}
-              onClick={() => setViewMode('day')}
+              onClick={() => { userOverrodeViewRef.current = true; setViewMode('day'); }}
               title="Day view"
             >Day</button>
             <button
               className={`view-toggle-btn${viewMode === 'week' ? ' active' : ''}`}
-              onClick={() => setViewMode('week')}
+              onClick={() => { userOverrodeViewRef.current = true; setViewMode('week'); }}
               title="Week view"
             >Week</button>
           </div>
