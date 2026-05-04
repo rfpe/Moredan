@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, type EventSpan } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import { getTranslations } from './i18n';
@@ -92,6 +92,8 @@ function App() {
         : e
     );
   }, [events, dragPreview]);
+
+  const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -394,6 +396,18 @@ function App() {
         </div>
 
         <div className="controls">
+          <div className="view-toggle">
+            <button
+              className={`view-toggle-btn${viewMode === 'day' ? ' active' : ''}`}
+              onClick={() => setViewMode('day')}
+              title="Day view"
+            >Day</button>
+            <button
+              className={`view-toggle-btn${viewMode === 'week' ? ' active' : ''}`}
+              onClick={() => setViewMode('week')}
+              title="Week view"
+            >Week</button>
+          </div>
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
           <button className="secondary-btn" onClick={handleExportXLSX}>{t.exportXlsx}</button>
@@ -402,8 +416,88 @@ function App() {
       </header>
 
       <main className="calendar-container">
+        {/* ── Week view ─────────────────────────────────────────────────────── */}
+        {viewMode === 'week' && yearData.map((month) => {
+          const { weeks, spans } = getWeekViewData(effectiveEvents, month.index, currentYear, visibleCategories, globalRowOffsets);
+          const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
+          const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
+          const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
+          const rowHeight = 40 + (maxBarOffset + 1) * 22;
+
+          return (
+            <div
+              key={month.name}
+              className="month-row month-row--week"
+              style={{
+                minHeight: `${rowHeight}px`,
+                gridTemplateColumns: `60px repeat(6, 1fr)`,
+              }}
+            >
+              <div className="month-label">{month.name}</div>
+
+              {/* Week cells */}
+              {Array.from({ length: 6 }, (_, i) => {
+                const week = weeks[i];
+                return week ? (
+                  <div key={week.isoWeek} className="week-cell">
+                    <span className="week-cell-label">W{week.isoWeek}</span>
+                    {/* Dots for sub-week events */}
+                    <div className="week-cell-dots">
+                      {dots.filter(d => d.column === week.column).map(dot => {
+                        const event = effectiveEvents.find(e => e.id === dot.eventId);
+                        const category = categories.find(c => c.id === event?.categoryId);
+                        return (
+                          <div
+                            key={dot.eventId}
+                            className="event-dot"
+                            style={{ backgroundColor: category?.color }}
+                            title={event?.name}
+                            onClick={() => { if (event) openEditEvent(event); }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div key={`filler-${i}`} className="week-cell week-cell--filler" />
+                );
+              })}
+
+              {/* Bar spans for multi-week events */}
+              {bars.map((bar) => {
+                const event = effectiveEvents.find(e => e.id === bar.eventId);
+                const category = categories.find(c => c.id === event?.categoryId);
+                return (
+                  <div
+                    key={`${month.index}-${bar.eventId}`}
+                    className="event-bar"
+                    style={{
+                      gridColumnStart: bar.startColumn,
+                      gridColumnEnd: bar.endColumn,
+                      gridRow: 1,
+                      top: `${20 + bar.rowOffset * 22}px`,
+                      backgroundColor: category?.color,
+                    }}
+                    title={event?.name}
+                    onClick={() => { if (event) openEditEvent(event); }}
+                  >
+                    <span className="event-title">{event?.name}</span>
+                    {bar.isEndContinuation && (
+                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                    )}
+                    {bar.isStartContinuation && (
+                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+
+        {/* ── Day view ──────────────────────────────────────────────────────── */}
         {/* Weekday header row — only in weekday-alignment mode */}
-        {weekdayAlign && (() => {
+        {viewMode === 'day' && weekdayAlign && (() => {
           // Anchor date: a known Sunday (Jan 5 2025) to derive weekday names by index
           const anchor = new Date(2025, 0, 5);
           return (
@@ -423,7 +517,7 @@ function App() {
           );
         })()}
 
-        {yearData.map((month) => {
+        {viewMode === 'day' && yearData.map((month) => {
           const monthSpans = getMonthSpans(effectiveEvents, month.index, currentYear, visibleCategories, weekdayAlign, weekStart, globalRowOffsets);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
           const rowHeight = 40 + (maxOffset + 1) * 22;

@@ -531,3 +531,78 @@ body.drag-active .event-bar {
   padding: 1.5rem 0;
   font-size: 0.85rem;
 }
+
+/* ── View toggle ─────────────────────────────────────────────────────────── */
+.view-toggle {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-right: 0.75rem;
+}
+
+.view-toggle-btn {
+  background: none;
+  border: none;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+}
+
+.view-toggle-btn:hover {
+  background: #f1f5f9;
+}
+
+.view-toggle-btn.active {
+  background: #3b82f6;
+  color: #fff;
+}
+
+/* ── Week view ───────────────────────────────────────────────────────────── */
+.month-row--week {
+  grid-template-columns: 60px repeat(6, 1fr);
+}
+
+.week-cell {
+  border-left: 1px solid #e2e8f0;
+  padding: 4px 4px 6px;
+  position: relative;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.week-cell--filler {
+  background: #fafafa;
+  border-left: 1px solid #e2e8f0;
+}
+
+.week-cell-label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.week-cell-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+
+.event-dot:hover {
+  transform: scale(1.4);
+}

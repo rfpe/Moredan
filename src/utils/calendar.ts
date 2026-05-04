@@ -115,6 +115,160 @@ export const computeGlobalRowOffsets = (
   return result;
 };
 
+// Returns the Monday of the ISO week containing `date`.
+const isoWeekMonday = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay() || 7; // Mon=1 … Sun=7
+  d.setDate(d.getDate() - (day - 1));
+  return d;
+};
+
+export interface WeekCell {
+  // ISO week number
+  isoWeek: number;
+  // Monday of this ISO week
+  weekStart: Date;
+  // Sunday of this ISO week
+  weekEnd: Date;
+  // Column index within the month row (1-based, after the label column)
+  column: number;
+}
+
+export interface WeekEventBar {
+  kind: 'bar';
+  eventId: string;
+  startColumn: number;
+  endColumn: number;
+  rowOffset: number;
+  isStartContinuation: boolean;
+  isEndContinuation: boolean;
+}
+
+export interface WeekEventDot {
+  kind: 'dot';
+  eventId: string;
+  column: number;
+  dotIndex: number;
+}
+
+export type WeekEventSpan = WeekEventBar | WeekEventDot;
+
+export interface WeekViewMonth {
+  weeks: WeekCell[];
+  spans: WeekEventSpan[];
+}
+
+// Returns up to 6 ISO weeks that overlap the given month, plus event spans.
+export const getWeekViewData = (
+  events: any[],
+  monthIndex: number,
+  year: number,
+  visibleCategoryIds: Set<string>,
+  globalRowOffsets: Map<string, number> = new Map()
+): WeekViewMonth => {
+  const monthStart = new Date(year, monthIndex, 1);
+  const monthEnd   = new Date(year, monthIndex + 1, 0);
+
+  // Collect all ISO week Mondays that overlap this month
+  const weeks: WeekCell[] = [];
+  let cursor = isoWeekMonday(monthStart);
+  while (cursor <= monthEnd) {
+    const weekEnd = new Date(cursor);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    weeks.push({
+      isoWeek:   getISOWeekNumber(cursor),
+      weekStart: new Date(cursor),
+      weekEnd,
+      column:    weeks.length + 2, // +2: col 1 = label, cols 2+ = weeks
+    });
+    cursor = new Date(cursor);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  // For each event, determine its presence in this month at week granularity
+  const bars: Omit<WeekEventBar, 'rowOffset'>[] = [];
+  const dotsByColumn = new Map<number, string[]>(); // column → eventIds
+
+  events.forEach(event => {
+    if (!visibleCategoryIds.has(event.categoryId)) return;
+
+    const eStart = new Date(event.start); eStart.setHours(0, 0, 0, 0);
+    const eEnd   = new Date(event.end);   eEnd.setHours(0, 0, 0, 0);
+
+    if (eStart > monthEnd || eEnd < monthStart) return;
+
+    // Which week cells does this event touch within this month?
+    const touchedWeeks = weeks.filter(w => eStart <= w.weekEnd && eEnd >= w.weekStart);
+    if (touchedWeeks.length === 0) return;
+
+    // Sub-week event (fits entirely within one week cell) → dot
+    if (touchedWeeks.length === 1) {
+      const col = touchedWeeks[0].column;
+      if (!dotsByColumn.has(col)) dotsByColumn.set(col, []);
+      dotsByColumn.get(col)!.push(event.id);
+      return;
+    }
+
+    // Multi-week → bar
+    const startCol = touchedWeeks[0].column;
+    const endCol   = touchedWeeks[touchedWeeks.length - 1].column + 1; // exclusive
+
+    bars.push({
+      kind: 'bar',
+      eventId: event.id,
+      startColumn: startCol,
+      endColumn:   endCol,
+      isStartContinuation: eStart < monthStart,
+      isEndContinuation:   eEnd   > monthEnd,
+    });
+  });
+
+  // Greedy stacking for bars (same pattern as getMonthSpans)
+  const positionedBars: WeekEventBar[] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
+
+  const globalBars = bars.filter(b => globalRowOffsets.has(b.eventId));
+  const localBars  = bars.filter(b => !globalRowOffsets.has(b.eventId));
+
+  globalBars.forEach(bar => {
+    const rowIndex = globalRowOffsets.get(bar.eventId)!;
+    if (!rows[rowIndex]) rows[rowIndex] = [];
+    rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+    positionedBars.push({ ...bar, rowOffset: rowIndex });
+  });
+
+  [...localBars]
+    .sort((a, b) => a.startColumn !== b.startColumn
+      ? a.startColumn - b.startColumn
+      : (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn))
+    .forEach(bar => {
+      let rowIndex = 0;
+      while (true) {
+        if (!rows[rowIndex]) rows[rowIndex] = [];
+        const conflict = rows[rowIndex].some(
+          r => bar.startColumn < r.end && bar.endColumn > r.start
+        );
+        if (!conflict) {
+          rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+          positionedBars.push({ ...bar, rowOffset: rowIndex });
+          break;
+        }
+        rowIndex++;
+      }
+    });
+
+  // Build dot spans with per-column index for vertical stacking
+  const dots: WeekEventDot[] = [];
+  dotsByColumn.forEach((eventIds, column) => {
+    eventIds.forEach((eventId, i) => {
+      dots.push({ kind: 'dot', eventId, column, dotIndex: i });
+    });
+  });
+
+  return { weeks, spans: [...positionedBars, ...dots] };
+};
+
 export const getMonthSpans = (
   events: any[],
   monthIndex: number,
