@@ -1141,15 +1141,27 @@ function App() {
             if (!showWeekNumbers) return [];
             const cols = weekdayAlign ? 42 : 31;
             const result: (number | null)[] = Array(cols).fill(null);
+            // ISO week numbers are always Monday-based. When weekStart is Sunday (0),
+            // the badge sits on Sunday but the ISO week number must reflect the Monday
+            // that follows it. Offset to Monday = (1 - weekStart + 7) % 7 days ahead.
+            const isoOffset = (1 - weekStart + 7) % 7;
             if (weekdayAlign) {
               for (let col = 0; col < cols; col++) {
                 const date = new Date(currentYear, month.index, 1 - offset + col);
-                if (date.getDay() === weekStart) result[col] = getISOWeekNumber(date);
+                if (date.getDay() === weekStart) {
+                  const monday = new Date(date);
+                  monday.setDate(monday.getDate() + isoOffset);
+                  result[col] = getISOWeekNumber(monday);
+                }
               }
             } else {
               month.days.forEach(day => {
                 const date = new Date(currentYear, month.index, day.dayNumber);
-                if (date.getDay() === weekStart) result[day.dayNumber - 1] = getISOWeekNumber(date);
+                if (date.getDay() === weekStart) {
+                  const monday = new Date(date);
+                  monday.setDate(monday.getDate() + isoOffset);
+                  result[day.dayNumber - 1] = getISOWeekNumber(monday);
+                }
               });
             }
             return result;
