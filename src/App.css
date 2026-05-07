@@ -753,6 +753,15 @@ body.drag-active .event-bar {
   /* column count set via inline style (52 or 53 ISO weeks) */
 }
 
+.yearweek-wrapper {
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+}
+
+.yearweek-wrapper .month-row--yearweek {
+  margin-bottom: 0;
+}
+
 .yearweek-month-header {
   display: grid;
   border-bottom: 1px solid #e2e8f0;

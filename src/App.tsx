@@ -935,9 +935,10 @@ function App() {
           }
 
           const gridCols = `60px repeat(${weeks.length}, 1fr)`;
+          const minGridWidth = `${60 + weeks.length * 28}px`;
           return (
-            <>
-              <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols }}>
+            <div className="yearweek-wrapper">
+              <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols, minWidth: minGridWidth }}>
                 <div className="yearweek-month-header__spacer" />
                 {monthSpans.map((ms) => (
                   <div
@@ -954,6 +955,7 @@ function App() {
               style={{
                 minHeight: `${rowHeight}px`,
                 gridTemplateColumns: gridCols,
+                minWidth: minGridWidth,
               }}
             >
               <div className="month-label">{currentYear}</div>
@@ -1010,7 +1012,7 @@ function App() {
                 );
               })}
             </div>
-            </>
+            </div>
           );
         })()}
 
