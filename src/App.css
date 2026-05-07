@@ -397,11 +397,15 @@
   display: flex;
   align-items: center;
   z-index: 10;
-  cursor: grab;
+  cursor: pointer;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   transition: transform 0.1s, opacity 0.1s;
   border: 1px solid rgba(0,0,0,0.1);
   overflow: visible;
+}
+
+[data-view="day"] .event-bar {
+  cursor: grab;
 }
 
 .event-bar.is-dragging {
@@ -457,7 +461,8 @@ body.drag-active .event-bar__resize-handle {
   width: 100%;
 }
 
-.event-bar:hover {
+.event-bar:hover,
+.event-bar.is-hovered {
   transform: translateY(-1px);
   filter: brightness(1.1);
   z-index: 20;

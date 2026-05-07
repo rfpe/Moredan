@@ -82,9 +82,19 @@ function App() {
   } | null>(null);
   const dragOccurredRef = useRef(false);
   const [dragEventId, setDragEventId] = useState<string | null>(null);
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<{
     eventId: string; newStart: Date; newEnd: Date;
   } | null>(null);
+
+  const barClass = (eventId: string, extra = '') =>
+    ['event-bar', dragEventId === eventId ? 'is-dragging' : '', hoveredEventId === eventId ? 'is-hovered' : '', extra]
+      .filter(Boolean).join(' ');
+
+  const barHoverProps = (eventId: string) => ({
+    onMouseEnter: () => setHoveredEventId(eventId),
+    onMouseLeave: () => setHoveredEventId(null),
+  });
 
   // Swap the dragging event's dates for preview dates so getMonthSpans
   // re-renders the bar at its new position on every mousemove.
@@ -777,7 +787,7 @@ function App() {
         </div>
       </header>
 
-      <main className="calendar-container" style={{ '--font-scale': fontScale } as React.CSSProperties}>
+      <main className="calendar-container" data-view={viewMode} style={{ '--font-scale': fontScale } as React.CSSProperties}>
         {/* ── Month view ────────────────────────────────────────────────────── */}
         {viewMode === 'month' && (() => {
           const renderYearRow = (
@@ -842,7 +852,8 @@ function App() {
                   return (
                     <div
                       key={bar.eventId}
-                      className="event-bar"
+                      className={barClass(bar.eventId)}
+                      {...barHoverProps(bar.eventId)}
                       style={{
                         gridColumnStart: bar.startColumn,
                         gridColumnEnd:   bar.endColumn,
@@ -933,7 +944,8 @@ function App() {
                 return (
                   <div
                     key={`${month.index}-${bar.eventId}`}
-                    className="event-bar"
+                    className={barClass(bar.eventId)}
+                    {...barHoverProps(bar.eventId)}
                     style={{
                       gridColumnStart: bar.startColumn,
                       gridColumnEnd: bar.endColumn,
@@ -1061,7 +1073,8 @@ function App() {
                     return (
                       <div
                         key={bar.eventId}
-                        className="event-bar"
+                        className={barClass(bar.eventId)}
+                        {...barHoverProps(bar.eventId)}
                         style={{
                           gridColumnStart: bar.startColumn,
                           gridColumnEnd: bar.endColumn,
@@ -1198,7 +1211,7 @@ function App() {
                 return (
                   <div
                     key={`${month.index}-${span.eventId}`}
-                    className={`event-bar${dragEventId === span.eventId ? ' is-dragging' : ''}`}
+                    className={barClass(span.eventId)}
                     style={{
                       gridColumnStart: span.startColumn,
                       gridColumnEnd: span.endColumn,
@@ -1207,6 +1220,7 @@ function App() {
                       backgroundColor: category?.color,
                     }}
                     title={event?.name}
+                    {...barHoverProps(span.eventId)}
                     onMouseDown={(e) => {
                       if (event) handleBarMouseDown(e, event, span, month.index);
                     }}
