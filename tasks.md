@@ -56,6 +56,7 @@
 ### Layout Variants
 - [x] Zoom: week view — ISO week cells per row; sub-week events as dots, multi-week as bars; auto-activates on mobile
 - [x] Zoom: month view — single row × 12 month cells; dot/pill indicators per category; multi-month events as bars
+- [x] Zoom: year-week view — single row × 52/53 ISO week cells; sub-week events as dots, multi-week as bars; click opens CellOverlay
 - [~] Vertical layout — months as columns, days as rows; each month is a separate render branch; stacking pushes events sideways (busy months are wider by design)
   - [x] Grid structure: sticky day-label column + 12 month columns, 31 day rows
   - [x] Greedy horizontal stacking per month column
