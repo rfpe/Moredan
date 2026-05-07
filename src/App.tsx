@@ -184,6 +184,8 @@ function App() {
   }, [effectiveEvents, visibleCategories, currentYear, viewMode]);
 
   const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
+  const todayISOWeek = getISOWeekNumber(today);
+  const todayYear = today.getFullYear();
   const scrollToTodayRef = useRef(false);
   useEffect(() => {
     if (!scrollToTodayRef.current) return;
@@ -909,10 +911,11 @@ function App() {
               {/* Week cells */}
               {Array.from({ length: 6 }, (_, i) => {
                 const week = weeks[i];
+                const isCurrentWeek = week && week.isoWeek === todayISOWeek && currentYear === todayYear;
                 return week ? (
                   <div
                     key={week.isoWeek}
-                    className="week-cell"
+                    className={`week-cell${isCurrentWeek ? ' week-cell--today' : ''}`}
                     onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
                   >
                     <span className="week-cell-label">W{week.isoWeek}</span>
@@ -1043,10 +1046,12 @@ function App() {
                     )}
                   </div>
 
-                  {weeks.map((week) => (
+                  {weeks.map((week) => {
+                    const isCurrentWeek = week.isoWeek === todayISOWeek && year === todayYear;
+                    return (
                     <div
                       key={week.isoWeek}
-                      className="week-cell"
+                      className={`week-cell${isCurrentWeek ? ' week-cell--today' : ''}`}
                       onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
                     >
                       <span className="week-cell-label">W{week.isoWeek}</span>
@@ -1065,7 +1070,8 @@ function App() {
                         })}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
 
                   {bars.map((bar) => {
                     const event = effectiveEvents.find(e => e.id === bar.eventId);

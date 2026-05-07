@@ -834,6 +834,18 @@ body.drag-active .event-bar__resize-handle {
   border-left: 1px solid #e2e8f0;
 }
 
+.week-cell--today {
+  background-color: #eff6ff;
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.week-cell--today .week-cell-label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
 .week-cell-label {
   font-size: calc(0.65rem * var(--font-scale));
   color: #94a3b8;
