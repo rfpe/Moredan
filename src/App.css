@@ -421,6 +421,34 @@ body.drag-active .event-bar {
   pointer-events: none;
 }
 
+.event-bar__resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  z-index: 11;
+  border-radius: 4px;
+}
+
+.event-bar__resize-handle--start {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.event-bar__resize-handle--end {
+  right: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.event-bar__resize-handle:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+body.drag-active .event-bar__resize-handle {
+  pointer-events: none;
+}
+
 .event-title {
   padding: 0 6px;
   white-space: nowrap;

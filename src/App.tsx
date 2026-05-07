@@ -78,6 +78,7 @@ function App() {
     clickOffsetDays: number;
     previewStart: Date | null;
     previewEnd: Date | null;
+    dragKind: 'move' | 'resize-start' | 'resize-end';
   } | null>(null);
   const dragOccurredRef = useRef(false);
   const [dragEventId, setDragEventId] = useState<string | null>(null);
@@ -511,14 +512,35 @@ function App() {
 
       const monthIdx = parseInt(cell.dataset.month ?? '0');
       const dayNum   = parseInt(cell.dataset.day   ?? '1');
-      const { eventId, durationMs, clickOffsetDays } = dragStateRef.current;
+      const { eventId, durationMs, clickOffsetDays, dragKind, calendarEvent } = dragStateRef.current;
 
       const hoveredDate = new Date(currentYear, monthIdx, dayNum);
-      const newStart = new Date(hoveredDate.getTime() - clickOffsetDays * 86400000);
-      const newEnd   = new Date(newStart.getTime() + durationMs);
+      hoveredDate.setHours(0, 0, 0, 0);
 
-      // Don't let the event leave the current year.
-      if (newStart < new Date(currentYear, 0, 1) || newEnd > new Date(currentYear, 11, 31)) return;
+      const yearStart = new Date(currentYear, 0, 1);
+      const yearEnd   = new Date(currentYear, 11, 31);
+
+      let newStart: Date;
+      let newEnd: Date;
+
+      if (dragKind === 'move') {
+        newStart = new Date(hoveredDate.getTime() - clickOffsetDays * 86400000);
+        newEnd   = new Date(newStart.getTime() + durationMs);
+        if (newStart < yearStart || newEnd > yearEnd) return;
+      } else if (dragKind === 'resize-end') {
+        const eventStart = new Date(calendarEvent.start); eventStart.setHours(0, 0, 0, 0);
+        // Minimum 1-day event: end must be at least same as start
+        newStart = eventStart;
+        newEnd   = hoveredDate < eventStart ? eventStart : hoveredDate;
+        if (newEnd > yearEnd) return;
+      } else {
+        // resize-start
+        const eventEnd = new Date(calendarEvent.end); eventEnd.setHours(0, 0, 0, 0);
+        // Minimum 1-day event: start must be at most same as end
+        newEnd   = eventEnd;
+        newStart = hoveredDate > eventEnd ? eventEnd : hoveredDate;
+        if (newStart < yearStart) return;
+      }
 
       dragStateRef.current.previewStart = newStart;
       dragStateRef.current.previewEnd   = newEnd;
@@ -580,7 +602,33 @@ function App() {
     );
 
     dragOccurredRef.current = false;
-    dragStateRef.current = { eventId: event.id, calendarEvent: event, durationMs, clickOffsetDays, previewStart: null, previewEnd: null };
+    dragStateRef.current = { eventId: event.id, calendarEvent: event, durationMs, clickOffsetDays, previewStart: null, previewEnd: null, dragKind: 'move' };
+    setDragEventId(event.id);
+  };
+
+  const handleResizeMouseDown = (
+    e: React.MouseEvent,
+    event: CalendarEvent,
+    kind: 'resize-start' | 'resize-end'
+  ) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const eventStart = new Date(event.start); eventStart.setHours(0, 0, 0, 0);
+    const eventEnd   = new Date(event.end);   eventEnd.setHours(0, 0, 0, 0);
+    const durationMs = eventEnd.getTime() - eventStart.getTime();
+
+    dragOccurredRef.current = false;
+    dragStateRef.current = {
+      eventId: event.id,
+      calendarEvent: event,
+      durationMs,
+      clickOffsetDays: 0,
+      previewStart: eventStart,
+      previewEnd: eventEnd,
+      dragKind: kind,
+    };
     setDragEventId(event.id);
   };
 
@@ -1146,6 +1194,7 @@ function App() {
                 const event = effectiveEvents.find(e => e.id === span.eventId);
                 const category = categories.find(c => c.id === event?.categoryId);
 
+                const originalEvent = events.find(e => e.id === span.eventId);
                 return (
                   <div
                     key={`${month.index}-${span.eventId}`}
@@ -1162,7 +1211,19 @@ function App() {
                       if (event) handleBarMouseDown(e, event, span, month.index);
                     }}
                   >
+                    {!span.isStartContinuation && originalEvent && (
+                      <div
+                        className="event-bar__resize-handle event-bar__resize-handle--start"
+                        onMouseDown={(e) => handleResizeMouseDown(e, originalEvent, 'resize-start')}
+                      />
+                    )}
                     <span className="event-title">{event?.name}</span>
+                    {!span.isEndContinuation && originalEvent && (
+                      <div
+                        className="event-bar__resize-handle event-bar__resize-handle--end"
+                        onMouseDown={(e) => handleResizeMouseDown(e, originalEvent, 'resize-end')}
+                      />
+                    )}
                     {span.isEndContinuation && (
                       <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
                     )}
