@@ -1414,6 +1414,7 @@ function App() {
           initialEvent={editingEvent ?? undefined}
           initialDate={prefillDate ?? undefined}
           t={t}
+          locale={locale}
         />
       </Modal>
 

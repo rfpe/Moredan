@@ -27,6 +27,9 @@ export interface Translations {
   addCategory: string;
   existingCategories: string;
   close: string;
+  // DatePicker
+  prevMonth: string;
+  nextMonth: string;
   // CellOverlay
   editEvent2: string;
   addEvent2: string;
@@ -60,6 +63,7 @@ export interface Translations {
 
 const translations: Record<string, Translations> = {
   'en-US': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Edit', addEvent2: '+ Add event', noEvents: 'No events',
     today: 'Today', viewDay: 'Day', viewWeek: 'Week', viewYearWeek: 'Year-Week', viewMonth: 'Month', viewVertical: 'Vertical', weekPrefix: 'W',
     all: 'All', none: 'None', addEvent: 'Add Event', categories: 'Categories', exportXlsx: 'Download', importXlsx: 'Import', settings: 'Settings',
@@ -76,6 +80,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Clear All Data', clearDataHint: 'Permanently removes all events and resets categories to defaults.', done: 'Done',
   },
   'fr-FR': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Modifier', addEvent2: '+ Ajouter un événement', noEvents: 'Aucun événement',
     today: "Aujourd'hui", viewDay: 'Jour', viewWeek: 'Semaine', viewYearWeek: 'Année-Semaine', viewMonth: 'Mois', viewVertical: 'Vertical', weekPrefix: 'S',
     all: 'Tout', none: 'Aucun', addEvent: 'Ajouter un événement', categories: 'Catégories', exportXlsx: 'Télécharger', importXlsx: 'Importer', settings: 'Paramètres',
@@ -92,6 +97,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Effacer toutes les données', clearDataHint: 'Supprime définitivement tous les événements et réinitialise les catégories.', done: 'Terminé',
   },
   'de-DE': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Bearbeiten', addEvent2: '+ Ereignis hinzufügen', noEvents: 'Keine Ereignisse',
     today: 'Heute', viewDay: 'Tag', viewWeek: 'Woche', viewYearWeek: 'Jahr-Woche', viewMonth: 'Monat', viewVertical: 'Vertikal', weekPrefix: 'KW',
     all: 'Alle', none: 'Keine', addEvent: 'Ereignis hinzufügen', categories: 'Kategorien', exportXlsx: 'Herunterladen', importXlsx: 'Importieren', settings: 'Einstellungen',
@@ -108,6 +114,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Alle Daten löschen', clearDataHint: 'Löscht alle Ereignisse dauerhaft und setzt die Kategorien zurück.', done: 'Fertig',
   },
   'es-ES': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Editar', addEvent2: '+ Agregar evento', noEvents: 'Sin eventos',
     today: 'Hoy', viewDay: 'Día', viewWeek: 'Semana', viewYearWeek: 'Año-Semana', viewMonth: 'Mes', viewVertical: 'Vertical', weekPrefix: 'S',
     all: 'Todos', none: 'Ninguno', addEvent: 'Agregar evento', categories: 'Categorías', exportXlsx: 'Descargar', importXlsx: 'Importar', settings: 'Configuración',
@@ -124,6 +131,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Borrar todos los datos', clearDataHint: 'Elimina permanentemente todos los eventos y restablece las categorías.', done: 'Listo',
   },
   'pt-BR': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Editar', addEvent2: '+ Adicionar evento', noEvents: 'Sem eventos',
     today: 'Hoje', viewDay: 'Dia', viewWeek: 'Semana', viewYearWeek: 'Ano-Semana', viewMonth: 'Mês', viewVertical: 'Vertical', weekPrefix: 'S',
     all: 'Todos', none: 'Nenhum', addEvent: 'Adicionar evento', categories: 'Categorias', exportXlsx: 'Baixar', importXlsx: 'Importar', settings: 'Configurações',
@@ -140,6 +148,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Limpar todos os dados', clearDataHint: 'Remove permanentemente todos os eventos e redefine as categorias.', done: 'Concluído',
   },
   'it-IT': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Modifica', addEvent2: '+ Aggiungi evento', noEvents: 'Nessun evento',
     today: 'Oggi', viewDay: 'Giorno', viewWeek: 'Settimana', viewYearWeek: 'Anno-Settimana', viewMonth: 'Mese', viewVertical: 'Verticale', weekPrefix: 'S',
     all: 'Tutti', none: 'Nessuno', addEvent: 'Aggiungi evento', categories: 'Categorie', exportXlsx: 'Scarica', importXlsx: 'Importa', settings: 'Impostazioni',
@@ -156,6 +165,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Cancella tutti i dati', clearDataHint: 'Rimuove definitivamente tutti gli eventi e reimposta le categorie.', done: 'Fatto',
   },
   'nl-NL': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Bewerken', addEvent2: '+ Evenement toevoegen', noEvents: 'Geen evenementen',
     today: 'Vandaag', viewDay: 'Dag', viewWeek: 'Week', viewYearWeek: 'Jaar-Week', viewMonth: 'Maand', viewVertical: 'Verticaal', weekPrefix: 'W',
     all: 'Alles', none: 'Geen', addEvent: 'Evenement toevoegen', categories: 'Categorieën', exportXlsx: 'Downloaden', importXlsx: 'Importeren', settings: 'Instellingen',
@@ -172,6 +182,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Alle gegevens wissen', clearDataHint: 'Verwijdert alle evenementen definitief en herstelt de categorieën.', done: 'Klaar',
   },
   'ru-RU': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: 'Изменить', addEvent2: '+ Добавить событие', noEvents: 'Нет событий',
     today: 'Сегодня', viewDay: 'День', viewWeek: 'Неделя', viewYearWeek: 'Год-Неделя', viewMonth: 'Месяц', viewVertical: 'Вертикаль', weekPrefix: 'Н',
     all: 'Все', none: 'Нет', addEvent: 'Добавить событие', categories: 'Категории', exportXlsx: 'Скачать', importXlsx: 'Импорт', settings: 'Настройки',
@@ -188,6 +199,7 @@ const translations: Record<string, Translations> = {
     clearData: 'Очистить все данные', clearDataHint: 'Безвозвратно удаляет все события и сбрасывает категории.', done: 'Готово',
   },
   'ja-JP': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: '編集', addEvent2: '+ イベントを追加', noEvents: 'イベントなし',
     today: '今日', viewDay: '日', viewWeek: '週', viewYearWeek: '年間週', viewMonth: '月', viewVertical: '縦', weekPrefix: '第',
     all: 'すべて', none: 'なし', addEvent: 'イベントを追加', categories: 'カテゴリ', exportXlsx: 'ダウンロード', importXlsx: 'インポート', settings: '設定',
@@ -204,6 +216,7 @@ const translations: Record<string, Translations> = {
     clearData: 'すべてのデータを削除', clearDataHint: 'すべてのイベントを完全に削除し、カテゴリをデフォルトにリセットします。', done: '完了',
   },
   'zh-CN': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: '编辑', addEvent2: '+ 添加事件', noEvents: '暂无事件',
     today: '今天', viewDay: '日', viewWeek: '周', viewYearWeek: '年-周', viewMonth: '月', viewVertical: '竖向', weekPrefix: '第',
     all: '全部', none: '无', addEvent: '添加事件', categories: '分类', exportXlsx: '下载', importXlsx: '导入', settings: '设置',
@@ -220,6 +233,7 @@ const translations: Record<string, Translations> = {
     clearData: '清除所有数据', clearDataHint: '永久删除所有事件并将分类重置为默认值。', done: '完成',
   },
   'ko-KR': {
+    prevMonth: '‹', nextMonth: '›',
     editEvent2: '편집', addEvent2: '+ 이벤트 추가', noEvents: '이벤트 없음',
     today: '오늘', viewDay: '일', viewWeek: '주', viewYearWeek: '연간 주', viewMonth: '월', viewVertical: '세로', weekPrefix: '주',
     all: '전체', none: '없음', addEvent: '이벤트 추가', categories: '카테고리', exportXlsx: '다운로드', importXlsx: '가져오기', settings: '설정',

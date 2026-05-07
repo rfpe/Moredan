@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { type Category, type CalendarEvent } from '../types';
 import type { Translations } from '../i18n';
+import DatePicker from './DatePicker';
 
 interface EventFormProps {
   categories: Category[];
@@ -10,6 +11,7 @@ interface EventFormProps {
   initialEvent?: CalendarEvent;
   initialDate?: string;
   t: Translations;
+  locale: string;
 }
 
 const toDateString = (date: Date): string => {
@@ -27,6 +29,7 @@ const EventForm: React.FC<EventFormProps> = ({
   initialEvent,
   initialDate,
   t,
+  locale,
 }) => {
   const defaultDate = initialDate ?? toDateString(new Date());
 
@@ -64,25 +67,21 @@ const EventForm: React.FC<EventFormProps> = ({
         />
       </div>
       <div className="form-row">
-        <div className="form-group">
-          <label>{t.startDate}</label>
-          <input
-            type="date"
-            value={start}
-            onChange={e => setStart(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>{t.endDate}</label>
-          <input
-            type="date"
-            value={end}
-            onChange={e => setEnd(e.target.value)}
-            required
-            min={start}
-          />
-        </div>
+        <DatePicker
+          value={start}
+          onChange={v => { setStart(v); if (v > end) setEnd(v); }}
+          locale={locale}
+          t={t}
+          label={t.startDate}
+        />
+        <DatePicker
+          value={end}
+          onChange={setEnd}
+          min={start}
+          locale={locale}
+          t={t}
+          label={t.endDate}
+        />
       </div>
       <div className="form-group">
         <label>{t.category}</label>
