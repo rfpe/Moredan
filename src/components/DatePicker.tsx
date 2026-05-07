@@ -34,7 +34,7 @@ const weekdayNames = (locale: string, weekStart: number): string[] => {
 };
 
 export default function DatePicker({ value, onChange, min, locale, t, label }: Props) {
-  const { y: initY, m: initM, d: initD } = parseYMD(value);
+  const { y: initY, m: initM } = parseYMD(value);
   const [open, setOpen] = useState(false);
   const [viewYear, setViewYear] = useState(initY);
   const [viewMonth, setViewMonth] = useState(initM);
