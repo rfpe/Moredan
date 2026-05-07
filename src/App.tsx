@@ -1355,6 +1355,32 @@ function App() {
         })()}
       </main>
 
+      <footer className="app-footer">
+        <span className="app-footer__brand">Moredan</span>
+        <span className="app-footer__sep app-footer__secondary">·</span>
+        <span className="app-footer__stats app-footer__secondary">
+          {events.length} event{events.length !== 1 ? 's' : ''}
+          {' · '}
+          {categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}
+        </span>
+        <span className="app-footer__sep app-footer__secondary">·</span>
+        <span className="app-footer__storage app-footer__secondary" title="All data is stored locally in your browser">Data stored locally</span>
+        <span className="app-footer__sep">·</span>
+        <a
+          className="app-footer__link"
+          href="https://github.com/rfpe/Moredan"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+        <span className="app-footer__sep">·</span>
+        <a
+          className="app-footer__link"
+          href="https://github.com/rfpe/Moredan/issues/new"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Report a bug</a>
+      </footer>
+
       {cellOverlay && (
         <CellOverlay
           label={cellOverlay.label}

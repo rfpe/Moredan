@@ -264,6 +264,43 @@
   padding-right: 0.5rem;
 }
 
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.app-footer__brand {
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.03em;
+}
+
+.app-footer__sep {
+  color: #cbd5e1;
+}
+
+.app-footer__link {
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+.app-footer__link:hover {
+  color: #475569;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .app-footer__secondary {
+    display: none;
+  }
+}
+
 .month-row {
   display: grid;
   grid-template-columns: 60px repeat(31, 1fr);
