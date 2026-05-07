@@ -917,12 +917,43 @@ function App() {
           const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
           const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
           const rowHeight = 40 + (maxBarOffset + 1) * 22;
+
+          // Group weeks into month spans using ISO Thursday rule
+          const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          type MonthSpan = { monthIndex: number; startCol: number; endCol: number };
+          const monthSpans: MonthSpan[] = [];
+          for (const week of weeks) {
+            const thu = new Date(week.weekStart);
+            thu.setDate(thu.getDate() + 3);
+            const monthIndex = thu.getMonth();
+            const last = monthSpans[monthSpans.length - 1];
+            if (last && last.monthIndex === monthIndex) {
+              last.endCol = week.column + 1;
+            } else {
+              monthSpans.push({ monthIndex, startCol: week.column, endCol: week.column + 1 });
+            }
+          }
+
+          const gridCols = `60px repeat(${weeks.length}, 1fr)`;
           return (
+            <>
+              <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols }}>
+                <div className="yearweek-month-header__spacer" />
+                {monthSpans.map((ms) => (
+                  <div
+                    key={ms.monthIndex}
+                    className="yearweek-month-header__label"
+                    style={{ gridColumnStart: ms.startCol, gridColumnEnd: ms.endCol }}
+                  >
+                    {MONTH_NAMES[ms.monthIndex]}
+                  </div>
+                ))}
+              </div>
             <div
               className="month-row month-row--yearweek"
               style={{
                 minHeight: `${rowHeight}px`,
-                gridTemplateColumns: `60px repeat(${weeks.length}, 1fr)`,
+                gridTemplateColumns: gridCols,
               }}
             >
               <div className="month-label">{currentYear}</div>
@@ -979,6 +1010,7 @@ function App() {
                 );
               })}
             </div>
+            </>
           );
         })()}
 

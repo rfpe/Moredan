@@ -753,6 +753,26 @@ body.drag-active .event-bar {
   /* column count set via inline style (52 or 53 ISO weeks) */
 }
 
+.yearweek-month-header {
+  display: grid;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.yearweek-month-header__spacer {
+  background-color: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+}
+
+.yearweek-month-header__label {
+  background-color: #f1f5f9;
+  font-weight: bold;
+  font-size: calc(0.75rem * var(--font-scale));
+  color: #475569;
+  text-transform: uppercase;
+  padding: 2px 4px;
+  border-left: 1px solid #e2e8f0;
+}
+
 .week-cell {
   border-left: 1px solid #e2e8f0;
   padding: 4px 4px 6px;
