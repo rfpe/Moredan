@@ -758,6 +758,10 @@ body.drag-active .event-bar {
   margin-bottom: 0.5rem;
 }
 
+.yearweek-wrapper--collapsed {
+  overflow-x: visible;
+}
+
 .yearweek-wrapper .month-row--yearweek {
   margin-bottom: 0;
 }

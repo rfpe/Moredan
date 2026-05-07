@@ -912,107 +912,139 @@ function App() {
 
         {/* ── Year-week view ────────────────────────────────────────────────── */}
         {viewMode === 'yearweek' && (() => {
-          const { weeks, spans } = getYearWeekViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
-          const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
-          const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
-          const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-          const rowHeight = 40 + (maxBarOffset + 1) * 22;
-
-          // Group weeks into month spans using ISO Thursday rule
           const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
           type MonthSpan = { monthIndex: number; startCol: number; endCol: number };
-          const monthSpans: MonthSpan[] = [];
-          for (const week of weeks) {
-            const thu = new Date(week.weekStart);
-            thu.setDate(thu.getDate() + 3);
-            const monthIndex = thu.getMonth();
-            const last = monthSpans[monthSpans.length - 1];
-            if (last && last.monthIndex === monthIndex) {
-              last.endCol = week.column + 1;
-            } else {
-              monthSpans.push({ monthIndex, startCol: week.column, endCol: week.column + 1 });
+
+          const buildMonthSpans = (weeks: ReturnType<typeof getYearWeekViewData>['weeks']): MonthSpan[] => {
+            const spans: MonthSpan[] = [];
+            for (const week of weeks) {
+              const thu = new Date(week.weekStart);
+              thu.setDate(thu.getDate() + 3);
+              const monthIndex = thu.getMonth();
+              const last = spans[spans.length - 1];
+              if (last && last.monthIndex === monthIndex) {
+                last.endCol = week.column + 1;
+              } else {
+                spans.push({ monthIndex, startCol: week.column, endCol: week.column + 1 });
+              }
             }
-          }
+            return spans;
+          };
 
-          const gridCols = `60px repeat(${weeks.length}, 1fr)`;
-          const minGridWidth = `${60 + weeks.length * 28}px`;
-          return (
-            <div className="yearweek-wrapper">
-              <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols, minWidth: minGridWidth }}>
-                <div className="yearweek-month-header__spacer" />
-                {monthSpans.map((ms) => (
-                  <div
-                    key={ms.monthIndex}
-                    className="yearweek-month-header__label"
-                    style={{ gridColumnStart: ms.startCol, gridColumnEnd: ms.endCol }}
-                  >
-                    {MONTH_NAMES[ms.monthIndex]}
-                  </div>
-                ))}
-              </div>
-            <div
-              className="month-row month-row--yearweek"
-              style={{
-                minHeight: `${rowHeight}px`,
-                gridTemplateColumns: gridCols,
-                minWidth: minGridWidth,
-              }}
-            >
-              <div className="month-label">{currentYear}</div>
-
-              {weeks.map((week) => (
-                <div
-                  key={week.isoWeek}
-                  className="week-cell"
-                  onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
-                >
-                  <span className="week-cell-label">W{week.isoWeek}</span>
-                  <div className="week-cell-dots">
-                    {dots.filter(d => d.column === week.column).map(dot => {
-                      const event = effectiveEvents.find(e => e.id === dot.eventId);
-                      const category = categories.find(c => c.id === event?.categoryId);
-                      return (
-                        <div
-                          key={dot.eventId}
-                          className="event-dot"
-                          style={{ backgroundColor: category?.color }}
-                          title={event?.name}
-                        />
-                      );
-                    })}
+          const renderYearWeekRow = (year: number, isCollapsed: boolean, onToggle: (() => void) | null) => {
+            if (isCollapsed) {
+              return (
+                <div key={year} className="yearweek-wrapper yearweek-wrapper--collapsed">
+                  <div className="month-row month-row--year-collapsed">
+                    <div className="month-label month-label--collapsed">
+                      <span>{year}</span>
+                      <button className="year-row-toggle" onClick={onToggle!} title="Show year">+</button>
+                    </div>
                   </div>
                 </div>
-              ))}
+              );
+            }
 
-              {bars.map((bar) => {
-                const event = effectiveEvents.find(e => e.id === bar.eventId);
-                const category = categories.find(c => c.id === event?.categoryId);
-                return (
-                  <div
-                    key={bar.eventId}
-                    className="event-bar"
-                    style={{
-                      gridColumnStart: bar.startColumn,
-                      gridColumnEnd: bar.endColumn,
-                      gridRow: 1,
-                      top: `${20 + bar.rowOffset * 22}px`,
-                      backgroundColor: category?.color,
-                    }}
-                    title={event?.name}
-                    onClick={() => { if (event) openEditEvent(event); }}
-                  >
-                    <span className="event-title">{event?.name}</span>
-                    {bar.isEndContinuation && (
-                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
-                    )}
-                    {bar.isStartContinuation && (
-                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+            const { weeks, spans } = getYearWeekViewData(effectiveEvents, year, visibleCategories, globalRowOffsets);
+            const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
+            const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
+            const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
+            const rowHeight = 40 + (maxBarOffset + 1) * 22;
+            const monthSpans = buildMonthSpans(weeks);
+            const gridCols = `60px repeat(${weeks.length}, 1fr)`;
+            const minGridWidth = `${60 + weeks.length * 28}px`;
+
+            return (
+              <div key={year} className="yearweek-wrapper">
+                <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols, minWidth: minGridWidth }}>
+                  <div className="yearweek-month-header__spacer" />
+                  {monthSpans.map((ms) => (
+                    <div
+                      key={ms.monthIndex}
+                      className="yearweek-month-header__label"
+                      style={{ gridColumnStart: ms.startCol, gridColumnEnd: ms.endCol }}
+                    >
+                      {MONTH_NAMES[ms.monthIndex]}
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="month-row month-row--yearweek"
+                  style={{
+                    minHeight: `${rowHeight}px`,
+                    gridTemplateColumns: gridCols,
+                    minWidth: minGridWidth,
+                  }}
+                >
+                  <div className="month-label month-label--year">
+                    <span>{year}</span>
+                    {onToggle && (
+                      <button className="year-row-toggle" onClick={onToggle} title="Hide year">×</button>
                     )}
                   </div>
-                );
-              })}
-            </div>
-            </div>
+
+                  {weeks.map((week) => (
+                    <div
+                      key={week.isoWeek}
+                      className="week-cell"
+                      onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
+                    >
+                      <span className="week-cell-label">W{week.isoWeek}</span>
+                      <div className="week-cell-dots">
+                        {dots.filter(d => d.column === week.column).map(dot => {
+                          const event = effectiveEvents.find(e => e.id === dot.eventId);
+                          const category = categories.find(c => c.id === event?.categoryId);
+                          return (
+                            <div
+                              key={dot.eventId}
+                              className="event-dot"
+                              style={{ backgroundColor: category?.color }}
+                              title={event?.name}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                  {bars.map((bar) => {
+                    const event = effectiveEvents.find(e => e.id === bar.eventId);
+                    const category = categories.find(c => c.id === event?.categoryId);
+                    return (
+                      <div
+                        key={bar.eventId}
+                        className="event-bar"
+                        style={{
+                          gridColumnStart: bar.startColumn,
+                          gridColumnEnd: bar.endColumn,
+                          gridRow: 1,
+                          top: `${20 + bar.rowOffset * 22}px`,
+                          backgroundColor: category?.color,
+                        }}
+                        title={event?.name}
+                        onClick={() => { if (event) openEditEvent(event); }}
+                      >
+                        <span className="event-title">{event?.name}</span>
+                        {bar.isEndContinuation && (
+                          <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                        )}
+                        {bar.isStartContinuation && (
+                          <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          };
+
+          return (
+            <>
+              {renderYearWeekRow(currentYear - 1, !showPrevYear, () => setShowPrevYear(v => !v))}
+              {renderYearWeekRow(currentYear,     false,          null)}
+              {renderYearWeekRow(currentYear + 1, !showNextYear, () => setShowNextYear(v => !v))}
+            </>
           );
         })()}
 
