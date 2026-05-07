@@ -673,7 +673,7 @@ function App() {
       const en = new Date(e.end);  en.setHours(0, 0, 0, 0);
       return s <= wEnd && en >= wStart;
     });
-    const label = `W${isoWeek} · ${wStart.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}–${wEnd.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`;
+    const label = `${t.weekPrefix}${isoWeek} · ${wStart.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}–${wEnd.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`;
     const prefill = weekStart.toISOString().split('T')[0];
     openCellOverlay(label, weekEvents, anchorEl, prefill);
   };
@@ -756,7 +756,13 @@ function App() {
               disabled={viewMode === 'day'}
               title="Zoom in"
             >＋</button>
-            <span className="view-toggle-label">{viewMode}</span>
+            <span className="view-toggle-label">{{
+              day: t.viewDay,
+              week: t.viewWeek,
+              yearweek: t.viewYearWeek,
+              month: t.viewMonth,
+              vertical: t.viewVertical,
+            }[viewMode]}</span>
             <button
               className="view-toggle-btn"
               onClick={zoomOut}
@@ -769,7 +775,7 @@ function App() {
             setViewMode('day');
             setCurrentYear(today.getFullYear());
             scrollToTodayRef.current = true;
-          }}>Today</button>
+          }}>{t.today}</button>
           <button className="primary-btn" onClick={() => openAddEvent()}>{t.addEvent}</button>
           <button className="secondary-btn" onClick={() => setIsCategoryModalOpen(true)}>{t.categories}</button>
           <button className="secondary-btn" onClick={() => fileInputRef.current?.click()}>{t.importXlsx}</button>
@@ -918,7 +924,7 @@ function App() {
                     className={`week-cell${isCurrentWeek ? ' week-cell--today' : ''}`}
                     onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
                   >
-                    <span className="week-cell-label">W{week.isoWeek}</span>
+                    <span className="week-cell-label">{t.weekPrefix}{week.isoWeek}</span>
                     {/* Dots for sub-week events */}
                     <div className="week-cell-dots">
                       {dots.filter(d => d.column === week.column).map(dot => {
@@ -1054,7 +1060,7 @@ function App() {
                       className={`week-cell${isCurrentWeek ? ' week-cell--today' : ''}`}
                       onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
                     >
-                      <span className="week-cell-label">W{week.isoWeek}</span>
+                      <span className="week-cell-label">{t.weekPrefix}{week.isoWeek}</span>
                       <div className="week-cell-dots">
                         {dots.filter(d => d.column === week.column).map(dot => {
                           const event = effectiveEvents.find(e => e.id === dot.eventId);
@@ -1180,7 +1186,7 @@ function App() {
                   <div className="week-number-row-label" />
                   {weekNumCols.map((wn, i) => (
                     <div key={i} className="week-number-row-cell">
-                      {wn !== null && <span className="week-number-badge">W{wn}</span>}
+                      {wn !== null && <span className="week-number-badge">{t.weekPrefix}{wn}</span>}
                     </div>
                   ))}
                 </div>
