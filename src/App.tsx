@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import './App.css'
-import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, getMonthViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
+import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, getYearWeekViewData, getMonthViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
 import { type Category, type CalendarEvent } from './types';
 import { getTranslations } from './i18n';
@@ -96,7 +96,7 @@ function App() {
     );
   }, [events, dragPreview]);
 
-  const VIEW_MODES = ['day', 'week', 'month', 'vertical'] as const;
+  const VIEW_MODES = ['day', 'week', 'yearweek', 'month', 'vertical'] as const;
   type ViewMode = typeof VIEW_MODES[number];
 
   const [viewMode, setViewMode] = useState<ViewMode>(() =>
@@ -909,6 +909,78 @@ function App() {
             </div>
           );
         })}
+
+        {/* ── Year-week view ────────────────────────────────────────────────── */}
+        {viewMode === 'yearweek' && (() => {
+          const { weeks, spans } = getYearWeekViewData(effectiveEvents, currentYear, visibleCategories, globalRowOffsets);
+          const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
+          const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
+          const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
+          const rowHeight = 40 + (maxBarOffset + 1) * 22;
+          return (
+            <div
+              className="month-row month-row--yearweek"
+              style={{
+                minHeight: `${rowHeight}px`,
+                gridTemplateColumns: `60px repeat(${weeks.length}, 1fr)`,
+              }}
+            >
+              <div className="month-label">{currentYear}</div>
+
+              {weeks.map((week) => (
+                <div
+                  key={week.isoWeek}
+                  className="week-cell"
+                  onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
+                >
+                  <span className="week-cell-label">W{week.isoWeek}</span>
+                  <div className="week-cell-dots">
+                    {dots.filter(d => d.column === week.column).map(dot => {
+                      const event = effectiveEvents.find(e => e.id === dot.eventId);
+                      const category = categories.find(c => c.id === event?.categoryId);
+                      return (
+                        <div
+                          key={dot.eventId}
+                          className="event-dot"
+                          style={{ backgroundColor: category?.color }}
+                          title={event?.name}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+
+              {bars.map((bar) => {
+                const event = effectiveEvents.find(e => e.id === bar.eventId);
+                const category = categories.find(c => c.id === event?.categoryId);
+                return (
+                  <div
+                    key={bar.eventId}
+                    className="event-bar"
+                    style={{
+                      gridColumnStart: bar.startColumn,
+                      gridColumnEnd: bar.endColumn,
+                      gridRow: 1,
+                      top: `${20 + bar.rowOffset * 22}px`,
+                      backgroundColor: category?.color,
+                    }}
+                    title={event?.name}
+                    onClick={() => { if (event) openEditEvent(event); }}
+                  >
+                    <span className="event-title">{event?.name}</span>
+                    {bar.isEndContinuation && (
+                      <div className="snake-nub snake-nub--end" style={{ backgroundColor: category?.color }} />
+                    )}
+                    {bar.isStartContinuation && (
+                      <div className="snake-nub snake-nub--start" style={{ backgroundColor: category?.color }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* ── Day view ──────────────────────────────────────────────────────── */}
         {/* Weekday header row — only in weekday-alignment mode */}

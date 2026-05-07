@@ -269,6 +269,107 @@ export const getWeekViewData = (
   return { weeks, spans: [...positionedBars, ...dots] };
 };
 
+// Returns all ISO weeks for the year (weeks whose Thursday falls in `year`), plus event spans.
+export const getYearWeekViewData = (
+  events: any[],
+  year: number,
+  visibleCategoryIds: Set<string>,
+  globalRowOffsets: Map<string, number> = new Map()
+): WeekViewMonth => {
+  const yearStart = new Date(year, 0, 1);
+  const yearEnd   = new Date(year, 11, 31);
+
+  // ISO week 1 is the week whose Thursday is Jan 4 or later
+  const weeks: WeekCell[] = [];
+  let cursor = isoWeekMonday(new Date(year, 0, 4));
+  while (true) {
+    const thursday = new Date(cursor);
+    thursday.setDate(thursday.getDate() + 3);
+    if (thursday.getFullYear() !== year) break;
+    const weekEnd = new Date(cursor);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    weeks.push({
+      isoWeek:   getISOWeekNumber(cursor),
+      weekStart: new Date(cursor),
+      weekEnd,
+      column:    weeks.length + 2, // col 1 = label, cols 2+ = weeks
+    });
+    cursor = new Date(cursor);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  const bars: Omit<WeekEventBar, 'rowOffset'>[] = [];
+  const dotsByColumn = new Map<number, string[]>();
+
+  events.forEach(event => {
+    if (!visibleCategoryIds.has(event.categoryId)) return;
+    const eStart = new Date(event.start); eStart.setHours(0, 0, 0, 0);
+    const eEnd   = new Date(event.end);   eEnd.setHours(0, 0, 0, 0);
+    if (eStart > yearEnd || eEnd < yearStart) return;
+
+    const touchedWeeks = weeks.filter(w => eStart <= w.weekEnd && eEnd >= w.weekStart);
+    if (touchedWeeks.length === 0) return;
+
+    if (touchedWeeks.length === 1) {
+      const col = touchedWeeks[0].column;
+      if (!dotsByColumn.has(col)) dotsByColumn.set(col, []);
+      dotsByColumn.get(col)!.push(event.id);
+      return;
+    }
+
+    bars.push({
+      kind: 'bar',
+      eventId: event.id,
+      startColumn: touchedWeeks[0].column,
+      endColumn:   touchedWeeks[touchedWeeks.length - 1].column + 1,
+      isStartContinuation: eStart < weeks[0].weekStart,
+      isEndContinuation:   eEnd   > weeks[weeks.length - 1].weekEnd,
+    });
+  });
+
+  const positionedBars: WeekEventBar[] = [];
+  const rows: Array<Array<{ start: number; end: number }>> = [];
+
+  const globalBars = bars.filter(b => globalRowOffsets.has(b.eventId));
+  const localBars  = bars.filter(b => !globalRowOffsets.has(b.eventId));
+
+  globalBars.forEach(bar => {
+    const rowIndex = globalRowOffsets.get(bar.eventId)!;
+    if (!rows[rowIndex]) rows[rowIndex] = [];
+    rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+    positionedBars.push({ ...bar, rowOffset: rowIndex });
+  });
+
+  [...localBars]
+    .sort((a, b) => a.startColumn !== b.startColumn
+      ? a.startColumn - b.startColumn
+      : (b.endColumn - b.startColumn) - (a.endColumn - a.startColumn))
+    .forEach(bar => {
+      let rowIndex = 0;
+      while (true) {
+        if (!rows[rowIndex]) rows[rowIndex] = [];
+        const conflict = rows[rowIndex].some(
+          r => bar.startColumn < r.end && bar.endColumn > r.start
+        );
+        if (!conflict) {
+          rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+          positionedBars.push({ ...bar, rowOffset: rowIndex });
+          break;
+        }
+        rowIndex++;
+      }
+    });
+
+  const dots: WeekEventDot[] = [];
+  dotsByColumn.forEach((eventIds, column) => {
+    eventIds.forEach((eventId, i) => {
+      dots.push({ kind: 'dot', eventId, column, dotIndex: i });
+    });
+  });
+
+  return { weeks, spans: [...positionedBars, ...dots] };
+};
+
 export interface MonthViewBar {
   kind: 'bar';
   eventId: string;
