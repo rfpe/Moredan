@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { CalendarEvent, Category } from '../types';
+import type { Translations } from '../i18n';
 
 interface Props {
   label: string;
@@ -9,12 +10,12 @@ interface Props {
   onEdit: (event: CalendarEvent) => void;
   onAdd: () => void;
   onClose: () => void;
+  t: Translations;
+  locale: string;
 }
 
-const fmt = (d: Date) =>
-  d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-
-export default function CellOverlay({ label, events, categories, position, onEdit, onAdd, onClose }: Props) {
+export default function CellOverlay({ label, events, categories, position, onEdit, onAdd, onClose, t, locale }: Props) {
+  const fmt = (d: Date) => d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function CellOverlay({ label, events, categories, position, onEdi
       </div>
 
       {events.length === 0 ? (
-        <p className="cell-overlay-empty">No events</p>
+        <p className="cell-overlay-empty">{t.noEvents}</p>
       ) : (
         <ul className="cell-overlay-list">
           {events.map(ev => {
@@ -71,7 +72,7 @@ export default function CellOverlay({ label, events, categories, position, onEdi
                     {sameDay ? fmt(start) : `${fmt(start)} – ${fmt(end)}`}
                   </span>
                 </div>
-                <button className="cell-overlay-edit" onClick={() => onEdit(ev)}>Edit</button>
+                <button className="cell-overlay-edit" onClick={() => onEdit(ev)}>{t.editEvent2}</button>
               </li>
             );
           })}
@@ -79,7 +80,7 @@ export default function CellOverlay({ label, events, categories, position, onEdi
       )}
 
       <div className="cell-overlay-footer">
-        <button className="cell-overlay-add" onClick={onAdd}>+ Add event</button>
+        <button className="cell-overlay-add" onClick={onAdd}>{t.addEvent2}</button>
       </div>
     </div>
   );

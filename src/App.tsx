@@ -1396,6 +1396,8 @@ function App() {
           onEdit={(ev) => { setCellOverlay(null); openEditEvent(ev); }}
           onAdd={() => { setCellOverlay(null); openAddEvent(cellOverlay.prefillDate ?? undefined); }}
           onClose={() => setCellOverlay(null)}
+          t={t}
+          locale={locale}
         />
       )}
 

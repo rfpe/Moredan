@@ -121,8 +121,8 @@ const CategoryForm: React.FC<Props> = ({
                   autoFocus
                   onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null); }}
                 />
-                <button className="primary-btn category-action-btn" onClick={saveEdit}>Save</button>
-                <button className="secondary-btn category-action-btn" onClick={() => setEditingId(null)}>Cancel</button>
+                <button className="primary-btn category-action-btn" onClick={saveEdit}>{t.done}</button>
+                <button className="secondary-btn category-action-btn" onClick={() => setEditingId(null)}>{t.cancel}</button>
               </div>
             );
           }
