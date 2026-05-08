@@ -823,8 +823,10 @@ function App() {
             }
             const { cells, bars } = getMonthViewData(effectiveEvents, year, visibleCategories, globalRowOffsets);
             const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-            const maxIndicatorRows = Math.max(0, ...cells.map(c => c.indicators.length));
-            const barsTopOffset = 4 + 16 + maxIndicatorRows * 11 + 6;
+            const maxItemsInCell = Math.max(0, ...cells.map(c =>
+              c.indicators.reduce((s, ind) => s + (ind.hasDot ? 1 : 0) + (ind.hasPill ? 1 : 0), 0)
+            ));
+            const barsTopOffset = 4 + 16 + Math.ceil(maxItemsInCell / 2) * 11 + 6;
             const rowHeight = barsTopOffset + (maxBarOffset + 1) * 22;
             return (
               <div
@@ -844,18 +846,12 @@ function App() {
                     <div key={m} className="month-overview-cell" onClick={(e) => handleMonthCellClick(m, e.currentTarget)}>
                       <span className="month-overview-name">{monthName}</span>
                       <div className="month-overview-indicators">
-                        {cell.indicators.map(ind => {
+                        {cell.indicators.flatMap(ind => {
                           const cat = categories.find(c => c.id === ind.categoryId);
-                          return (
-                            <div key={ind.categoryId} className="month-overview-ind-row">
-                              {ind.hasDot && (
-                                <div className="event-dot" style={{ backgroundColor: cat?.color }} title={cat?.name} />
-                              )}
-                              {ind.hasPill && (
-                                <div className="event-pill" style={{ backgroundColor: cat?.color }} title={cat?.name} />
-                              )}
-                            </div>
-                          );
+                          const items = [];
+                          if (ind.hasDot)  items.push(<div key={`${ind.categoryId}-d`} className="event-dot"  style={{ backgroundColor: cat?.color }} title={cat?.name} />);
+                          if (ind.hasPill) items.push(<div key={`${ind.categoryId}-p`} className="event-pill" style={{ backgroundColor: cat?.color }} title={cat?.name} />);
+                          return items;
                         })}
                       </div>
                     </div>
