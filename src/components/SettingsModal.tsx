@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Translations } from '../i18n';
+import { type EventAttribute, type AttributeType } from '../types';
 
 interface SettingsModalProps {
   locale: string;
@@ -12,6 +13,11 @@ interface SettingsModalProps {
   onClearData: () => void;
   onClose: () => void;
   t: Translations;
+  eventAttributes: EventAttribute[];
+  onAddAttribute: (name: string, type: AttributeType) => void;
+  onUpdateAttribute: (id: string, name: string, type: AttributeType) => void;
+  onDeleteAttribute: (id: string) => void;
+  onReorderAttributes: (attrs: EventAttribute[]) => void;
 }
 
 const LOCALES = [
@@ -28,6 +34,12 @@ const LOCALES = [
   { code: 'ko-KR', label: '한국어' },
 ];
 
+const TYPE_LABELS: Record<AttributeType, string> = {
+  text: 'Text',
+  textarea: 'Note',
+  url: 'URL',
+};
+
 const SettingsModal: React.FC<SettingsModalProps> = ({
   locale,
   onLocaleChange,
@@ -39,9 +51,36 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onClearData,
   onClose,
   t,
+  eventAttributes,
+  onAddAttribute,
+  onUpdateAttribute,
+  onDeleteAttribute,
+  onReorderAttributes,
 }) => {
   const browserLocale = navigator.language;
   const browserLabel = `${t.browserDefault} (${browserLocale})`;
+
+  const [newAttrName, setNewAttrName] = useState('');
+  const [newAttrType, setNewAttrType] = useState<AttributeType>('text');
+
+  const sortedAttrs = [...eventAttributes].sort((a, b) => a.order - b.order);
+
+  const moveAttr = (id: string, dir: -1 | 1) => {
+    const idx = sortedAttrs.findIndex(a => a.id === id);
+    const swap = idx + dir;
+    if (swap < 0 || swap >= sortedAttrs.length) return;
+    const next = [...sortedAttrs];
+    [next[idx], next[swap]] = [next[swap], next[idx]];
+    onReorderAttributes(next);
+  };
+
+  const handleAddAttr = () => {
+    const trimmed = newAttrName.trim();
+    if (!trimmed) return;
+    onAddAttribute(trimmed, newAttrType);
+    setNewAttrName('');
+    setNewAttrType('text');
+  };
 
   return (
     <div className="settings-form">
@@ -92,6 +131,56 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <span>{t.showWeekNumbers}</span>
         </label>
         <span className="settings-hint">{t.weekNumbersHint}</span>
+      </div>
+
+      <div className="settings-section">
+        <h3 className="settings-section-title">Custom Event Attributes</h3>
+        <p className="settings-hint">Extra fields shown on every event form.</p>
+
+        {sortedAttrs.map((attr, idx) => (
+          <div className="attribute-row" key={attr.id}>
+            <input
+              type="text"
+              className="attribute-row__name"
+              defaultValue={attr.name}
+              onBlur={e => {
+                const trimmed = e.target.value.trim();
+                onUpdateAttribute(attr.id, trimmed || attr.name, attr.type);
+                if (!trimmed) e.target.value = attr.name;
+              }}
+            />
+            <select
+              value={attr.type}
+              onChange={e => onUpdateAttribute(attr.id, attr.name, e.target.value as AttributeType)}
+            >
+              {(Object.keys(TYPE_LABELS) as AttributeType[]).map(k => (
+                <option key={k} value={k}>{TYPE_LABELS[k]}</option>
+              ))}
+            </select>
+            <button type="button" className="icon-btn" onClick={() => moveAttr(attr.id, -1)} title="Move up" disabled={idx === 0}>↑</button>
+            <button type="button" className="icon-btn" onClick={() => moveAttr(attr.id, 1)} title="Move down" disabled={idx === sortedAttrs.length - 1}>↓</button>
+            <button type="button" className="icon-btn icon-btn--danger" onClick={() => onDeleteAttribute(attr.id)} title="Delete">✕</button>
+          </div>
+        ))}
+
+        <div className="attribute-row attribute-row--add">
+          <input
+            type="text"
+            className="attribute-row__name"
+            placeholder="Attribute name"
+            value={newAttrName}
+            onChange={e => setNewAttrName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddAttr())}
+          />
+          <select value={newAttrType} onChange={e => setNewAttrType(e.target.value as AttributeType)}>
+            {(Object.keys(TYPE_LABELS) as AttributeType[]).map(k => (
+              <option key={k} value={k}>{TYPE_LABELS[k]}</option>
+            ))}
+          </select>
+          <button type="button" className="primary-btn" onClick={handleAddAttr} disabled={!newAttrName.trim()}>
+            Add
+          </button>
+        </div>
       </div>
 
       <div className="settings-demo-section">

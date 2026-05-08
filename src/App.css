@@ -180,6 +180,55 @@
   margin-top: 0;
 }
 
+.settings-section {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.settings-section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.25rem;
+}
+
+.attribute-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.attribute-row__name {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.attribute-row select {
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.attribute-row--add {
+  margin-top: 4px;
+}
+
+.icon-btn--danger {
+  color: #ef4444;
+}
+
+.icon-btn--danger:hover {
+  background: #fee2e2;
+}
+
 .settings-demo-section {
   display: flex;
   align-items: center;
@@ -546,6 +595,16 @@ body.drag-active .event-bar__resize-handle {
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   font-size: 0.85rem;
+}
+
+.form-group textarea {
+  padding: 0.4rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
 }
 
 .form-row {

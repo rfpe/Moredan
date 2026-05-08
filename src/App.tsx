@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import './App.css'
 import { generateYearData, getMonthSpans, getWeekStart, getMonthOffset, getISOWeekNumber, computeGlobalRowOffsets, getWeekViewData, getYearWeekViewData, getMonthViewData, type EventSpan, type WeekEventBar, type WeekEventDot } from './utils/calendar';
 import { DEMO_CATEGORIES, generateDemoEvents } from './utils/demoData';
-import { type Category, type CalendarEvent } from './types';
+import { type Category, type CalendarEvent, type EventAttribute, type AttributeType } from './types';
 import { getTranslations } from './i18n';
 import Modal from './components/Modal';
 import EventForm from './components/EventForm';
@@ -41,6 +41,11 @@ function App() {
     return () => window.removeEventListener('resize', handler);
   }, []);
   const narrowWeekday = windowWidth <= 1300;
+
+  const [eventAttributes, setEventAttributes] = useState<EventAttribute[]>(() => {
+    const saved = localStorage.getItem('moredan_event_attributes');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('moredan_categories');
@@ -318,6 +323,10 @@ function App() {
   const [prefillDate, setPrefillDate] = useState<string | null>(null);
 
   useEffect(() => {
+    localStorage.setItem('moredan_event_attributes', JSON.stringify(eventAttributes));
+  }, [eventAttributes]);
+
+  useEffect(() => {
     localStorage.setItem('moredan_categories', JSON.stringify(categories));
   }, [categories]);
 
@@ -344,6 +353,7 @@ function App() {
   const handleClearData = () => {
     if (!window.confirm('Clear all events and reset categories to defaults?')) return;
     setEvents([]);
+    setEventAttributes([]);
     setCategories([
       { id: '1', name: 'Work', color: '#3b82f6' },
       { id: '2', name: 'Personal', color: '#10b981' },
@@ -462,6 +472,19 @@ function App() {
 
   const handleEditCategory = (id: string, data: Omit<Category, 'id'>) => {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+  };
+
+  const handleAddAttribute = (name: string, type: AttributeType) => {
+    setEventAttributes(prev => [...prev, { id: crypto.randomUUID(), name, type, order: prev.length }]);
+  };
+  const handleUpdateAttribute = (id: string, name: string, type: AttributeType) => {
+    setEventAttributes(prev => prev.map(a => a.id === id ? { ...a, name, type } : a));
+  };
+  const handleDeleteAttribute = (id: string) => {
+    setEventAttributes(prev => prev.filter(a => a.id !== id));
+  };
+  const handleReorderAttributes = (attrs: EventAttribute[]) => {
+    setEventAttributes(attrs.map((a, i) => ({ ...a, order: i })));
   };
 
   const handleDeleteCategory = (id: string, reassign: boolean) => {
@@ -1452,6 +1475,7 @@ function App() {
           initialDate={prefillDate ?? undefined}
           t={t}
           locale={locale}
+          eventAttributes={eventAttributes}
         />
       </Modal>
 
@@ -1471,6 +1495,11 @@ function App() {
           onClearData={handleClearData}
           onClose={() => setIsSettingsModalOpen(false)}
           t={t}
+          eventAttributes={eventAttributes}
+          onAddAttribute={handleAddAttribute}
+          onUpdateAttribute={handleUpdateAttribute}
+          onDeleteAttribute={handleDeleteAttribute}
+          onReorderAttributes={handleReorderAttributes}
         />
       </Modal>
 

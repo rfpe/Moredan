@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type Category, type CalendarEvent } from '../types';
+import { type Category, type CalendarEvent, type EventAttribute } from '../types';
 import type { Translations } from '../i18n';
 import DatePicker from './DatePicker';
 
@@ -12,6 +12,7 @@ interface EventFormProps {
   initialDate?: string;
   t: Translations;
   locale: string;
+  eventAttributes: EventAttribute[];
 }
 
 const toDateString = (date: Date): string => {
@@ -30,6 +31,7 @@ const EventForm: React.FC<EventFormProps> = ({
   initialDate,
   t,
   locale,
+  eventAttributes,
 }) => {
   const defaultDate = initialDate ?? toDateString(new Date());
 
@@ -37,6 +39,9 @@ const EventForm: React.FC<EventFormProps> = ({
   const [start, setStart] = useState(initialEvent ? toDateString(initialEvent.start) : defaultDate);
   const [end, setEnd] = useState(initialEvent ? toDateString(initialEvent.end) : defaultDate);
   const [categoryId, setCategoryId] = useState(initialEvent?.categoryId ?? categories[0]?.id ?? '');
+  const [attrValues, setAttrValues] = useState<Record<string, string>>(
+    () => initialEvent?.attributes ?? {}
+  );
 
   const isEditing = !!initialEvent;
 
@@ -50,8 +55,11 @@ const EventForm: React.FC<EventFormProps> = ({
       start: new Date(start),
       end: new Date(end),
       categoryId,
+      attributes: attrValues,
     });
   };
+
+  const sortedAttrs = [...eventAttributes].sort((a, b) => a.order - b.order);
 
   return (
     <form className="event-form" onSubmit={handleSubmit}>
@@ -105,6 +113,25 @@ const EventForm: React.FC<EventFormProps> = ({
           })}
         </div>
       </div>
+      {sortedAttrs.map(attr => (
+        <div className="form-group" key={attr.id}>
+          <label>{attr.name}</label>
+          {attr.type === 'textarea' ? (
+            <textarea
+              rows={3}
+              value={attrValues[attr.id] ?? ''}
+              onChange={e => setAttrValues(prev => ({ ...prev, [attr.id]: e.target.value }))}
+            />
+          ) : (
+            <input
+              type={attr.type === 'url' ? 'url' : 'text'}
+              placeholder={attr.type === 'url' ? 'https://' : ''}
+              value={attrValues[attr.id] ?? ''}
+              onChange={e => setAttrValues(prev => ({ ...prev, [attr.id]: e.target.value }))}
+            />
+          )}
+        </div>
+      ))}
       <div className="form-actions">
         {isEditing && onDelete && (
           <button type="button" className="delete-btn delete-btn--form" onClick={onDelete}>
