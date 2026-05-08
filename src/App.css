@@ -842,13 +842,13 @@ body.drag-active .event-bar__resize-handle {
   margin-bottom: 0.5rem;
 }
 
-.yearweek-wrapper--current {
+.yearweek-wrapper--expanded {
   flex: 1;
   min-height: 0;
   margin-bottom: 0;
 }
 
-.yearweek-wrapper--current .month-row--yearweek {
+.yearweek-wrapper--expanded .month-row--yearweek {
   height: 100%;
 }
 
