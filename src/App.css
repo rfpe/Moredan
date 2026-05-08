@@ -827,9 +827,29 @@ body.drag-active .event-bar__resize-handle {
   grid-template-rows: auto 1fr;
 }
 
+[data-view="yearweek"] {
+  overflow-y: hidden;
+}
+
+.yearweek-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .yearweek-wrapper {
   overflow-x: auto;
   margin-bottom: 0.5rem;
+}
+
+.yearweek-wrapper--current {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.yearweek-wrapper--current .month-row--yearweek {
+  height: 100%;
 }
 
 .yearweek-wrapper--collapsed {

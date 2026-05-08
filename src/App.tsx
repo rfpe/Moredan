@@ -1021,7 +1021,7 @@ function App() {
             return spans;
           };
 
-          const renderYearWeekRow = (year: number, isCollapsed: boolean, onToggle: (() => void) | null) => {
+          const renderYearWeekRow = (year: number, isCollapsed: boolean, onToggle: (() => void) | null, isCurrent = false) => {
             if (isCollapsed) {
               return (
                 <div key={year} className="yearweek-wrapper yearweek-wrapper--collapsed">
@@ -1049,7 +1049,7 @@ function App() {
             const minGridWidth = `${60 + weeks.length * 28}px`;
 
             return (
-              <div key={year} className="yearweek-wrapper">
+              <div key={year} className={`yearweek-wrapper${isCurrent ? ' yearweek-wrapper--current' : ''}`}>
                 <div
                   className="month-row month-row--yearweek"
                   style={{
@@ -1136,11 +1136,11 @@ function App() {
           };
 
           return (
-            <>
+            <div className="yearweek-container">
               {renderYearWeekRow(currentYear - 1, !showPrevYear, () => setShowPrevYear(v => !v))}
-              {renderYearWeekRow(currentYear,     false,          null)}
+              {renderYearWeekRow(currentYear,     false,          null, true)}
               {renderYearWeekRow(currentYear + 1, !showNextYear, () => setShowNextYear(v => !v))}
-            </>
+            </div>
           );
         })()}
 
