@@ -919,7 +919,11 @@ function App() {
           const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
           const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
           const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-          const rowHeight = 40 + (maxBarOffset + 1) * 22;
+          const maxDotsInCell = dots.length > 0
+            ? Math.max(...weeks.filter(Boolean).map(w => dots.filter(d => d.column === w.column).length))
+            : 0;
+          const barsTopOffset = 4 + 14 + maxDotsInCell * 11 + 4;
+          const rowHeight = Math.max(40, barsTopOffset) + Math.max(0, maxBarOffset + 1) * 22;
 
           return (
             <div
@@ -980,7 +984,7 @@ function App() {
                       gridColumnStart: bar.startColumn,
                       gridColumnEnd: bar.endColumn,
                       gridRow: 1,
-                      top: `${20 + bar.rowOffset * 22}px`,
+                      top: `${barsTopOffset + bar.rowOffset * 22}px`,
                       backgroundColor: category?.color,
                     }}
                     title={event?.name}
@@ -1039,7 +1043,11 @@ function App() {
             const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
             const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
             const maxBarOffset = bars.length > 0 ? Math.max(...bars.map(b => b.rowOffset)) : -1;
-            const rowHeight = 40 + (maxBarOffset + 1) * 22;
+            const maxDotsInCell = dots.length > 0
+              ? Math.max(...weeks.map(w => dots.filter(d => d.column === w.column).length))
+              : 0;
+            const barsTopOffset = 4 + 14 + maxDotsInCell * 11 + 4;
+            const rowHeight = Math.max(40, barsTopOffset) + Math.max(0, maxBarOffset + 1) * 22;
             const monthSpans = buildMonthSpans(weeks);
             const gridCols = `60px repeat(${weeks.length}, 1fr)`;
             const minGridWidth = `${60 + weeks.length * 28}px`;
@@ -1112,7 +1120,7 @@ function App() {
                           gridColumnStart: bar.startColumn,
                           gridColumnEnd: bar.endColumn,
                           gridRow: 1,
-                          top: `${20 + bar.rowOffset * 22}px`,
+                          top: `${barsTopOffset + bar.rowOffset * 22}px`,
                           backgroundColor: category?.color,
                         }}
                         title={event?.name}
