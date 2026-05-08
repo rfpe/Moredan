@@ -198,6 +198,13 @@ function App() {
 
   const [showPrevYear, setShowPrevYear] = useState(true);
   const [showNextYear, setShowNextYear] = useState(true);
+  const [hiddenMonths, setHiddenMonths] = useState<Set<number>>(new Set());
+  const toggleMonthRow = (monthIndex: number) =>
+    setHiddenMonths(prev => {
+      const next = new Set(prev);
+      if (next.has(monthIndex)) next.delete(monthIndex); else next.add(monthIndex);
+      return next;
+    });
 
   const [fontScale, setFontScale] = useState<number>(() =>
     parseFloat(localStorage.getItem('moredan_font_scale') ?? '1')
@@ -897,6 +904,17 @@ function App() {
 
         {/* ── Week view ─────────────────────────────────────────────────────── */}
         {viewMode === 'week' && yearData.map((month) => {
+          if (hiddenMonths.has(month.index)) {
+            return (
+              <div key={month.name} className="month-row month-row--year-collapsed">
+                <div className="month-label month-label--collapsed">
+                  <span>{month.name}</span>
+                  <button className="year-row-toggle" onClick={() => toggleMonthRow(month.index)} title="Show events">+</button>
+                </div>
+              </div>
+            );
+          }
+
           const { weeks, spans } = getWeekViewData(effectiveEvents, month.index, currentYear, visibleCategories, globalRowOffsets);
           const bars = spans.filter((s): s is WeekEventBar => s.kind === 'bar');
           const dots = spans.filter((s): s is WeekEventDot => s.kind === 'dot');
@@ -912,7 +930,10 @@ function App() {
                 gridTemplateColumns: `60px repeat(6, 1fr)`,
               }}
             >
-              <div className="month-label">{month.name}</div>
+              <div className="month-label">
+                {month.name}
+                <button className="year-row-toggle" onClick={() => toggleMonthRow(month.index)} title="Hide events">×</button>
+              </div>
 
               {/* Week cells */}
               {Array.from({ length: 6 }, (_, i) => {
@@ -1144,6 +1165,17 @@ function App() {
         })()}
 
         {viewMode === 'day' && yearData.map((month) => {
+          if (hiddenMonths.has(month.index)) {
+            return (
+              <div key={month.name} className="month-row month-row--year-collapsed">
+                <div className="month-label month-label--collapsed">
+                  <span>{month.name}</span>
+                  <button className="year-row-toggle" onClick={() => toggleMonthRow(month.index)} title="Show events">+</button>
+                </div>
+              </div>
+            );
+          }
+
           const monthSpans = getMonthSpans(effectiveEvents, month.index, currentYear, visibleCategories, weekdayAlign, weekStart, globalRowOffsets);
           const maxOffset = monthSpans.length > 0 ? Math.max(...monthSpans.map(s => s.rowOffset)) : 0;
           const rowHeight = 40 + (maxOffset + 1) * 22;
@@ -1195,7 +1227,10 @@ function App() {
                 className={`month-row${weekdayAlign ? ' month-row--weekday' : ''}`}
                 style={{ minHeight: `${rowHeight}px` }}
               >
-              <div className="month-label">{month.name}</div>
+              <div className="month-label">
+                {month.name}
+                <button className="year-row-toggle" onClick={() => toggleMonthRow(month.index)} title="Hide events">×</button>
+              </div>
 
               {/* Offset cells (empty weekday slots before day 1) */}
               {Array.from({ length: offset }, (_, i) => (
