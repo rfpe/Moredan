@@ -340,12 +340,31 @@ export const getYearWeekViewData = (
     .sort((a, b) => a - b);
   const compactedOffset = new Map(usedGlobalOffsets.map((orig, i) => [orig, i]));
 
-  globalBars.forEach(bar => {
-    const rowIndex = compactedOffset.get(globalRowOffsets.get(bar.eventId)!)!;
-    if (!rows[rowIndex]) rows[rowIndex] = [];
-    rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
-    positionedBars.push({ ...bar, rowOffset: rowIndex });
-  });
+  // Place global bars using their compacted offset as a preferred row, but still
+  // check for column conflicts (e.g. adjacent events like Jun 30 / Jul 1 both touch
+  // the same ISO week). Sort by preferred row so lower-offset events hold their row.
+  [...globalBars]
+    .sort((a, b) => {
+      const aOff = compactedOffset.get(globalRowOffsets.get(a.eventId)!)!;
+      const bOff = compactedOffset.get(globalRowOffsets.get(b.eventId)!)!;
+      return aOff !== bOff ? aOff - bOff : a.startColumn - b.startColumn;
+    })
+    .forEach(bar => {
+      const preferredRow = compactedOffset.get(globalRowOffsets.get(bar.eventId)!)!;
+      let rowIndex = preferredRow;
+      while (true) {
+        if (!rows[rowIndex]) rows[rowIndex] = [];
+        const conflict = rows[rowIndex].some(
+          r => bar.startColumn < r.end && bar.endColumn > r.start
+        );
+        if (!conflict) {
+          rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
+          positionedBars.push({ ...bar, rowOffset: rowIndex });
+          break;
+        }
+        rowIndex++;
+      }
+    });
 
   [...localBars]
     .sort((a, b) => a.startColumn !== b.startColumn
