@@ -57,6 +57,8 @@
 - [x] Zoom: week view — ISO week cells per row; sub-week events as dots, multi-week as bars; auto-activates on mobile
 - [x] Zoom: month view — single row × 12 month cells; dot/pill indicators per category; multi-month events as bars
 - [x] Zoom: year-week view — single row × 52/53 ISO week cells; sub-week events as dots, multi-week as bars; click opens CellOverlay
+  - [x] Month labels header row above week columns (ISO Thursday rule for week attribution)
+  - [x] Multi-year rows — prev/next year rows with individual hide toggles, reusing showPrevYear/showNextYear state
 - [~] Vertical layout — months as columns, days as rows; each month is a separate render branch; stacking pushes events sideways (busy months are wider by design)
   - [x] Grid structure: sticky day-label column + 12 month columns, 31 day rows
   - [x] Greedy horizontal stacking per month column
@@ -73,6 +75,7 @@
 - [x] Cell summary — click a cell to see all events in that period; adapts to zoom level (day / week / month)
 - [x] Today highlight + navigate — "Today" button in header: switches to day view, sets year, scrolls to and highlights today's cell
 - [x] Multi-year month view — in month view, auto-show prev/next year rows; each row has an individual hide toggle
+- [x] Multi-year year-week view — same prev/next year rows with hide toggles in year-week view
 - [ ] Recurring events — define events that repeat (daily, weekly, monthly, yearly)
 - [ ] Event dependencies — link events with an arrow to show sequencing
 

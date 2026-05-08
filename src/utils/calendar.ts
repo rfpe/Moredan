@@ -146,7 +146,7 @@ export interface WeekEventBar {
 }
 
 export interface WeekEventDot {
-  kind: 'dot';
+  kind: 'dot' | 'pill';
   eventId: string;
   column: number;
   dotIndex: number;
@@ -299,7 +299,7 @@ export const getYearWeekViewData = (
   }
 
   const bars: Omit<WeekEventBar, 'rowOffset'>[] = [];
-  const dotsByColumn = new Map<number, string[]>();
+  const dotsByColumn = new Map<number, Array<{ eventId: string; durationDays: number }>>();
 
   events.forEach(event => {
     if (!visibleCategoryIds.has(event.categoryId)) return;
@@ -313,7 +313,8 @@ export const getYearWeekViewData = (
     if (touchedWeeks.length === 1) {
       const col = touchedWeeks[0].column;
       if (!dotsByColumn.has(col)) dotsByColumn.set(col, []);
-      dotsByColumn.get(col)!.push(event.id);
+      const durationDays = Math.round((eEnd.getTime() - eStart.getTime()) / 86400000);
+      dotsByColumn.get(col)!.push({ eventId: event.id, durationDays });
       return;
     }
 
@@ -330,11 +331,17 @@ export const getYearWeekViewData = (
   const positionedBars: WeekEventBar[] = [];
   const rows: Array<Array<{ start: number; end: number }>> = [];
 
+  // Compact global row offsets to only the rows that actually appear in this year,
+  // preventing sparse gaps (e.g. rows 0, 5, 10) from inflating the view height.
   const globalBars = bars.filter(b => globalRowOffsets.has(b.eventId));
   const localBars  = bars.filter(b => !globalRowOffsets.has(b.eventId));
 
+  const usedGlobalOffsets = [...new Set(globalBars.map(b => globalRowOffsets.get(b.eventId)!))]
+    .sort((a, b) => a - b);
+  const compactedOffset = new Map(usedGlobalOffsets.map((orig, i) => [orig, i]));
+
   globalBars.forEach(bar => {
-    const rowIndex = globalRowOffsets.get(bar.eventId)!;
+    const rowIndex = compactedOffset.get(globalRowOffsets.get(bar.eventId)!)!;
     if (!rows[rowIndex]) rows[rowIndex] = [];
     rows[rowIndex].push({ start: bar.startColumn, end: bar.endColumn });
     positionedBars.push({ ...bar, rowOffset: rowIndex });
@@ -361,9 +368,9 @@ export const getYearWeekViewData = (
     });
 
   const dots: WeekEventDot[] = [];
-  dotsByColumn.forEach((eventIds, column) => {
-    eventIds.forEach((eventId, i) => {
-      dots.push({ kind: 'dot', eventId, column, dotIndex: i });
+  dotsByColumn.forEach((items, column) => {
+    items.forEach(({ eventId, durationDays }, i) => {
+      dots.push({ kind: durationDays >= 1 ? 'pill' : 'dot', eventId, column, dotIndex: i });
     });
   });
 

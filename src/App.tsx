@@ -1068,7 +1068,7 @@ function App() {
                           return (
                             <div
                               key={dot.eventId}
-                              className="event-dot"
+                              className={dot.kind === 'pill' ? 'event-pill' : 'event-dot'}
                               style={{ backgroundColor: category?.color }}
                               title={event?.name}
                             />
