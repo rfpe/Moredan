@@ -26,6 +26,18 @@ Moredan is a yearly calendar application focused on a **Linear Timeline Layout**
   - Event bars start below cell text (`top: 20px` offset in stacking logic).
   - Event titles truncate with ellipsis inside bars.
 
+## Alignment / Drift Rule — READ THIS BEFORE TOUCHING ANY LAYOUT
+
+**Any time the user reports misalignment, drift, or elements not lining up on resize — the cause is almost always two separate CSS Grids with the same `grid-template-columns` trying to stay in sync. They never will. Do not attempt to fix it by tweaking borders, padding, `min-width`, `box-sizing`, or `1fr` calculations. Those are dead ends that waste hours.**
+
+**The only correct fix: merge the misaligned elements into a single shared grid.** Use `grid-row` to stack them in separate rows of the same grid. Children in the same grid share the exact same column geometry by definition — no math, no hacks required.
+
+This was learned the hard way across multiple sessions:
+- Day view: event bars were a second grid → fixed by making them `position: absolute` children of the day-cell grid.
+- Year-Week view: month-name header was a sibling grid to the week-cell row → fixed by moving month labels into `grid-row: 1` of the same `.month-row--yearweek` grid, week cells to `grid-row: 2`.
+
+**First response to any alignment/drift report: identify whether two grids are involved. If yes, merge them. Do not propose any other fix first.**
+
 ## Core Logic: Stacking & Spanning
 - **Spanning:** Events are projected onto each month they touch. Multi-month events render as separate bars per row.
 - **Stacking:** The greedy algorithm in `getMonthSpans` calculates `rowOffset` to prevent overlap. Rows store `{start, end}` pairs; overlap uses `newStart < existingEnd && newEnd > existingStart`.
