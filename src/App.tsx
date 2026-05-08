@@ -1050,18 +1050,6 @@ function App() {
 
             return (
               <div key={year} className="yearweek-wrapper">
-                <div className="yearweek-month-header" style={{ gridTemplateColumns: gridCols, minWidth: minGridWidth }}>
-                  <div className="yearweek-month-header__spacer" />
-                  {monthSpans.map((ms) => (
-                    <div
-                      key={ms.monthIndex}
-                      className="yearweek-month-header__label"
-                      style={{ gridColumnStart: ms.startCol, gridColumnEnd: ms.endCol }}
-                    >
-                      {MONTH_NAMES[ms.monthIndex]}
-                    </div>
-                  ))}
-                </div>
                 <div
                   className="month-row month-row--yearweek"
                   style={{
@@ -1070,12 +1058,21 @@ function App() {
                     minWidth: minGridWidth,
                   }}
                 >
-                  <div className="month-label month-label--year">
+                  <div className="month-label month-label--year" style={{ gridRow: '1 / 3' }}>
                     <span>{year}</span>
                     {onToggle && (
                       <button className="year-row-toggle" onClick={onToggle} title="Hide year">×</button>
                     )}
                   </div>
+                  {monthSpans.map((ms) => (
+                    <div
+                      key={ms.monthIndex}
+                      className="yearweek-month-header__label"
+                      style={{ gridColumnStart: ms.startCol, gridColumnEnd: ms.endCol, gridRow: 1 }}
+                    >
+                      {MONTH_NAMES[ms.monthIndex]}
+                    </div>
+                  ))}
 
                   {weeks.map((week) => {
                     const isCurrentWeek = week.isoWeek === todayISOWeek && year === todayYear;
@@ -1083,6 +1080,7 @@ function App() {
                     <div
                       key={week.isoWeek}
                       className={`week-cell${isCurrentWeek ? ' week-cell--today' : ''}`}
+                      style={{ gridRow: 2 }}
                       onClick={(e) => handleWeekCellClick(week.isoWeek, week.weekStart, week.weekEnd, e.currentTarget)}
                     >
                       <span className="week-cell-label">{t.weekPrefix}{week.isoWeek}</span>
@@ -1115,7 +1113,7 @@ function App() {
                         style={{
                           gridColumnStart: bar.startColumn,
                           gridColumnEnd: bar.endColumn,
-                          gridRow: 1,
+                          gridRow: 2,
                           top: `${barsTopOffset + bar.rowOffset * 22}px`,
                           backgroundColor: category?.color,
                         }}

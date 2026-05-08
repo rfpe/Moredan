@@ -824,6 +824,7 @@ body.drag-active .event-bar__resize-handle {
 
 .month-row--yearweek {
   /* column count set via inline style (52 or 53 ISO weeks) */
+  grid-template-rows: auto 1fr;
 }
 
 .yearweek-wrapper {
@@ -839,18 +840,6 @@ body.drag-active .event-bar__resize-handle {
   margin-bottom: 0;
 }
 
-.yearweek-month-header {
-  display: grid;
-  border-left: 1px solid #e2e8f0;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.yearweek-month-header__spacer {
-  background-color: #f1f5f9;
-  border-right: 1px solid #e2e8f0;
-}
-
 .yearweek-month-header__label {
   background-color: #f1f5f9;
   font-weight: bold;
@@ -859,6 +848,8 @@ body.drag-active .event-bar__resize-handle {
   text-transform: uppercase;
   padding: 2px 4px;
   border-left: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  align-self: stretch;
 }
 
 .week-cell {
