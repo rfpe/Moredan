@@ -49,3 +49,14 @@ This was learned the hard way across multiple sessions:
 - Always update `tasks.md` after significant changes.
 - Use branches for new feature implementation (e.g., `feat/my-feature`).
 - Maintain the "Linear Timeline" aesthetic in all UI additions.
+
+## Claude Memory
+Persistent memory files are stored in `.claude/memory/` in this repository. At the start of each new session, copy them to the sandbox memory directory so they are auto-loaded:
+```
+cp /workspaces/Moredan/.claude/memory/* /home/codespace/.claude/projects/-workspaces-Moredan/memory/
+```
+After writing new memory files during a session, copy them back and commit:
+```
+cp /home/codespace/.claude/projects/-workspaces-Moredan/memory/* /workspaces/Moredan/.claude/memory/
+git add .claude/memory/ && git commit -m "chore: update Claude memory files"
+```
