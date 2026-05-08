@@ -60,3 +60,4 @@ After writing new memory files during a session, copy them back and commit:
 cp /home/codespace/.claude/projects/-workspaces-Moredan/memory/* /workspaces/Moredan/.claude/memory/
 git add .claude/memory/ && git commit -m "chore: update Claude memory files"
 ```
+**When the user says the session is done/over, always sync memory files, commit, and push before closing — even if no new memories were written this session.**
